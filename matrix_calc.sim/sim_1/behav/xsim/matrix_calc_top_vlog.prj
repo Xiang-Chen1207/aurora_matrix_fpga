@@ -1,0 +1,18 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../src" \
+"../../../../src/controller_fsm.v" \
+"../../../../src/debounce.v" \
+"../../../../src/led_status.v" \
+"../../../../src/matrix/matrix_storage.v" \
+"../../../../src/uatr/matrix_uart_input.v" \
+"../../../../src/uatr/matrix_uart_output.v" \
+"../../../../src/seg_display.v" \
+"../../../../src/uatr/uart_rx.v" \
+"../../../../src/uatr/uart_tx.v" \
+"../../../../src/matrix_calc_top.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

@@ -1,0 +1,63 @@
+#-----------------------------------------------------------
+# Vivado v2017.4 (64-bit)
+# SW Build 2086221 on Fri Dec 15 20:55:39 MST 2017
+# IP Build 2085800 on Fri Dec 15 22:25:07 MST 2017
+# Start of session at: Tue Dec 23 00:06:31 2025
+# Process ID: 37076
+# Current directory: E:/desk/matrix_calc
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent32860 E:\desk\matrix_calc\matrix_calc.xpr
+# Log file: E:/desk/matrix_calc/vivado.log
+# Journal file: E:/desk/matrix_calc\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project E:/desk/matrix_calc/matrix_calc.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Vivado/2017.4/data/ip'.
+update_compile_order -fileset sources_1
+source E:/desk/matrix_calc/update_project.tcl
+# set project_files [get_files -filter {IS_AUTO_DISABLED == 0 || IS_AUTO_DISABLED == 1}]
+# if {[llength $project_files] > 0} {
+#     remove_files $project_files
+# }
+# add_files -norecurse {
+#     E:/desk/matrix_calc/src/controller_fsm_v2.v
+#     E:/desk/matrix_calc/src/debounce.v
+#     E:/desk/matrix_calc/src/defs.vh
+#     E:/desk/matrix_calc/src/matrix_calc_top_v2.v
+#     E:/desk/matrix_calc/src/seg_display_v2.v
+# }
+# add_files -norecurse {
+#     E:/desk/matrix_calc/src/matrix/input_image_rom.v
+#     E:/desk/matrix_calc/src/matrix/mat_add.v
+#     E:/desk/matrix_calc/src/matrix/mat_conv.v
+#     E:/desk/matrix_calc/src/matrix/mat_mul.v
+#     E:/desk/matrix_calc/src/matrix/mat_scalar_mult.v
+#     E:/desk/matrix_calc/src/matrix/mat_transpose.v
+#     E:/desk/matrix_calc/src/matrix/matrix_calc_unit.v
+#     E:/desk/matrix_calc/src/matrix/matrix_gen.v
+#     E:/desk/matrix_calc/src/matrix/matrix_storage_v2.v
+# }
+# add_files -norecurse {
+#     E:/desk/matrix_calc/src/uatr/matrix_uart_input_v2.v
+#     E:/desk/matrix_calc/src/uatr/matrix_uart_output_v2.v
+#     E:/desk/matrix_calc/src/uatr/uart_rx.v
+#     E:/desk/matrix_calc/src/uatr/uart_tx.v
+# }
+# add_files -fileset constrs_1 -norecurse E:/desk/matrix_calc/constraints/board_constraints.xdc
+# update_compile_order -fileset sources_1
+# set_property top matrix_calc_top_v2 [current_fileset]
+# update_compile_order -fileset sources_1
+# puts "Project sources updated successfully."
+Project sources updated successfully.
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+[Tue Dec 23 00:07:36 2025] Launched synth_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/synth_1/runme.log
+launch_runs impl_1 -jobs 8
+[Tue Dec 23 00:09:17 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+exit
+INFO: [Common 17-206] Exiting Vivado at Tue Dec 23 00:22:56 2025...

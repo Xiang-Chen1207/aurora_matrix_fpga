@@ -1,0 +1,21 @@
+0.6
+2017.4
+Dec 15 2017
+21:07:18
+E:/desk/CS207/matrix_calc/matrix_calc/src/controller_fsm.v,1765455322,verilog,,E:/desk/CS207/matrix_calc/matrix_calc/src/debounce.v,,controller_fsm,,,../../../../src,,,,,
+E:/desk/CS207/matrix_calc/matrix_calc/src/debounce.v,1764504202,verilog,,E:/desk/CS207/matrix_calc/matrix_calc/src/led_status.v,,debounce,,,../../../../src,,,,,
+E:/desk/CS207/matrix_calc/matrix_calc/src/led_status.v,1765444126,verilog,,E:/desk/CS207/matrix_calc/matrix_calc/src/matrix/matrix_storage.v,,led_status,,,../../../../src,,,,,
+E:/desk/CS207/matrix_calc/matrix_calc/src/matrix/matrix_storage.v,1765453868,verilog,,E:/desk/CS207/matrix_calc/matrix_calc/src/uatr/matrix_uart_input.v,,matrix_storage,,,../../../../src,,,,,
+E:/desk/CS207/matrix_calc/matrix_calc/src/matrix_calc_top.v,1765455236,verilog,,,,matrix_calc_top,,,../../../../src,,,,,
+E:/desk/CS207/matrix_calc/matrix_calc/src/seg_display.v,1764504202,verilog,,E:/desk/CS207/matrix_calc/matrix_calc/src/uatr/uart_rx.v,,seg_display,,,../../../../src,,,,,
+E:/desk/CS207/matrix_calc/matrix_calc/src/uatr/uart_rx.v,1764504202,verilog,,E:/desk/CS207/matrix_calc/matrix_calc/src/uatr/uart_tx.v,,uart_rx,,,../../../../src,,,,,
+E:/desk/CS207/matrix_calc/matrix_calc/src/uatr/uart_tx.v,1764504202,verilog,,E:/desk/CS207/matrix_calc/matrix_calc/src/matrix_calc_top.v,,uart_tx,,,../../../../src,,,,,
+E:/desk/matrix_calc/matrix_calc.sim/sim_1/behav/xsim/glbl.v,1766336577,verilog,,,,glbl,,,,,,,,
+E:/desk/matrix_calc/src/matrix/input_image_rom.v,1766336578,verilog,,E:/desk/matrix_calc/src/matrix/mat_add.v,,input_image_rom,,,../../../../src,,,,,
+E:/desk/matrix_calc/src/matrix/mat_add.v,1766336578,verilog,,E:/desk/matrix_calc/src/matrix/mat_conv.v,,mat_add,,,../../../../src,,,,,
+E:/desk/matrix_calc/src/matrix/mat_conv.v,1766336578,verilog,,E:/desk/matrix_calc/src/matrix/mat_mul.v,,mat_conv,,,../../../../src,,,,,
+E:/desk/matrix_calc/src/matrix/mat_mul.v,1766336578,verilog,,E:/desk/matrix_calc/src/matrix/mat_scalar_mult.v,,mat_mul,,,../../../../src,,,,,
+E:/desk/matrix_calc/src/matrix/mat_scalar_mult.v,1766336578,verilog,,E:/desk/matrix_calc/src/matrix/mat_transpose.v,,mat_scalar_mult,,,../../../../src,,,,,
+E:/desk/matrix_calc/src/matrix/mat_transpose.v,1766336578,verilog,,E:/desk/matrix_calc/src/matrix/matrix_calc_unit.v,,mat_transpose,,,../../../../src,,,,,
+E:/desk/matrix_calc/src/matrix/matrix_calc_unit.v,1766336578,verilog,,E:/desk/matrix_calc/tb/tb_matrix_calc.v,,matrix_calc_unit,,,../../../../src,,,,,
+E:/desk/matrix_calc/tb/tb_matrix_calc.v,1766336578,verilog,,,,tb_matrix_calc,,,../../../../src,,,,,

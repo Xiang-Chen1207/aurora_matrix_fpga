@@ -1,0 +1,32 @@
+
+*** Running vivado
+    with args -log matrix_calc_top_v2.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source matrix_calc_top_v2.tcl
+
+
+****** Vivado v2017.4 (64-bit)
+  **** SW Build 2086221 on Fri Dec 15 20:55:39 MST 2017
+  **** IP Build 2085800 on Fri Dec 15 22:25:07 MST 2017
+    ** Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
+
+source matrix_calc_top_v2.tcl -notrace
+Command: synth_design -top matrix_calc_top_v2 -part xc7a35tcsg324-1
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7a35t'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7a35t'
+INFO: Launching helper process for spawning children vivado processes
+INFO: Helper process launched with PID 44852 
+WARNING: [Synth 8-2611] redeclaration of ansi port output_m is not allowed [E:/desk/matrix_calc/src/controller_fsm_v2.v:58]
+ERROR: [Synth 8-2531] port output_m is already defined [E:/desk/matrix_calc/src/controller_fsm_v2.v:58]
+WARNING: [Synth 8-976] output_m has already been declared [E:/desk/matrix_calc/src/controller_fsm_v2.v:58]
+WARNING: [Synth 8-2654] second declaration of output_m ignored [E:/desk/matrix_calc/src/controller_fsm_v2.v:58]
+INFO: [Synth 8-994] output_m is declared here [E:/desk/matrix_calc/src/controller_fsm_v2.v:57]
+ERROR: [Synth 8-1031] output_data is not declared [E:/desk/matrix_calc/src/controller_fsm_v2.v:428]
+ERROR: [Synth 8-1031] output_data is not declared [E:/desk/matrix_calc/src/controller_fsm_v2.v:469]
+ERROR: [Synth 8-1031] output_data is not declared [E:/desk/matrix_calc/src/controller_fsm_v2.v:522]
+INFO: [Synth 8-2350] module controller_fsm_v2 ignored due to previous errors [E:/desk/matrix_calc/src/controller_fsm_v2.v:8]
+Failed to read verilog 'E:/desk/matrix_calc/src/controller_fsm_v2.v'
+INFO: [Common 17-83] Releasing license: Synthesis
+4 Infos, 3 Warnings, 0 Critical Warnings and 5 Errors encountered.
+synth_design failed
+ERROR: [Common 17-69] Command failed: Synthesis failed - please see the console or run log file for details
+INFO: [Common 17-206] Exiting Vivado at Tue Dec 23 00:24:19 2025...

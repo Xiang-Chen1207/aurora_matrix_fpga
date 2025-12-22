@@ -1,0 +1,39 @@
+Vivado Simulator 2017.4
+Time resolution is 1 ps
+
+========== Test 1: Matrix Transpose ==========
+Transpose completed!
+Result rows: 3, cols: 2
+Result Matrix (3x2):
+    1   4 
+    2   5 
+    3   6 
+
+========== Test 2: Matrix Addition ==========
+Addition completed!
+Result Matrix (2x2):
+    4   6 
+    4   6 
+
+========== Test 3: Scalar Multiplication ==========
+Scalar multiplication completed! (scalar = 3)
+Result Matrix (2x3):
+    3   6   9 
+    9  12  15 
+
+========== Test 4: Matrix Multiplication ==========
+Matrix multiplication completed!
+Expected: C[0][0]=14, C[0][1]=8, C[1][0]=26, C[1][1]=14
+Result Matrix (2x2):
+   14   8 
+   26  14 
+
+========== Test 5: Convolution ==========
+Convolution completed!
+Total cycles: 2400
+Output size: 8x10
+First row of convolution result:
+   26  33  18  31  24  36  26  24  26  21 
+
+========== All Tests Completed ==========
+$finish called at time : 24995 ns : File "E:/desk/matrix_calc/tb/tb_matrix_calc.v" Line 365
