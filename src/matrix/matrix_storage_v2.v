@@ -1,27 +1,28 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Module Name: matrix_storage_v2
-// Description: 增强版矩阵存储管理模�?
-// 功能�?
-//   1. 每种规格(m×n)�?多存�?2个矩�?
-//   2. 自动编号�?1, 2, ...�?
-//   3. 新矩阵覆盖旧矩阵（轮换机制）
-//   4. 支持200位数据（8�?/元素�?
+// Description: Storage Module
+// Function:
+//   1. Store up to 10 matrices (any size up to 5x5)
+//   2. Auto ID generation
+//   3. Per-dimension 2-slot rotation: third matrix of same size overwrites the older one
+//   4. Global rotation fallback when storage is full and size is new
+//   5. Support 200-bit data
 //////////////////////////////////////////////////////////////////////////////////
 
 module matrix_storage_v2(
     input wire clk,
     input wire rst_n,
 
-    // 写入接口
+    // Write Interface
     input wire write_en,
-    input wire [2:0] wr_m,              // 行数
-    input wire [2:0] wr_n,              // 列数
-    input wire [199:0] wr_data,         // 矩阵数据 (25×8bit)
-    output reg [7:0] wr_id,             // 分配的ID
+    input wire [2:0] wr_m,              // Rows
+    input wire [2:0] wr_n,              // Cols
+    input wire [199:0] wr_data,         // Data
+    output reg [7:0] wr_id,             // Assigned ID
     output reg wr_done,
 
-    // 读取接口
+    // Read Interface
     input wire read_en,
     input wire [7:0] rd_id,
     output reg [2:0] rd_m,
@@ -30,54 +31,92 @@ module matrix_storage_v2(
     output reg rd_valid,
     output reg rd_error,
 
-    // 查询接口
+    // Query Interface
     input wire query_en,
     output reg [3:0] total_count,
-    output reg [79:0] matrix_info,       // 10个矩阵的规格信息（每�?8位：ID+m+n�?
+    output reg [159:0] matrix_info,      // 10 entries info: per entry {id[7:0], m[2:0], n[2:0], 2'b0}
+    output reg [99:0] summary_counts,    // 25 dims * 4-bit count (1..5 x 1..5)
     
-    // 维度查询接口 (v2.1 Feature)
+    // Dimension Match Interface (v2.1 Feature)
     input wire [2:0] query_dim_m,
     input wire [2:0] query_dim_n,
-    output reg [15:0] match_ids         // 匹配的ID列表 (支持多个ID，每4位一个ID)
+    output reg [15:0] match_ids,         // Matched ID list
+
+    // Dump-by-index Interface (for full display)
+    input wire dump_en,
+    input wire [3:0] dump_index,
+    output reg dump_valid,
+    output reg [7:0] dump_id,
+    output reg [2:0] dump_m,
+    output reg [2:0] dump_n,
+    output reg [199:0] dump_data
 );
 
-    // 存储参数
+    // Params
     parameter MAX_MATRICES = 10;
 
-    // 存储数组
+    // Storage
     reg [2:0] stored_m [0:MAX_MATRICES-1];
     reg [2:0] stored_n [0:MAX_MATRICES-1];
     reg [199:0] stored_data [0:MAX_MATRICES-1];
     reg [7:0] stored_id [0:MAX_MATRICES-1];
     reg stored_valid [0:MAX_MATRICES-1];
 
-    // ID计数�?
+    // ID Counter
     reg [7:0] next_id;
 
-    // 规格索引计数器（用于轮换�?
-    reg [1:0] dim_counter [0:24];
+    // Global write pointer (0..MAX_MATRICES-1), used for fallback overwrite when storage is full
+    reg [3:0] write_index;
 
-    // 计算规格索引
-    function [4:0] get_dim_index;
-        input [2:0] m, n;
-        begin
-            case ({m, n})
-                {3'd1, 3'd1}: get_dim_index = 0;
-                {3'd1, 3'd2}: get_dim_index = 1;
-                {3'd1, 3'd3}: get_dim_index = 2;
-                {3'd2, 3'd1}: get_dim_index = 3;
-                {3'd2, 3'd2}: get_dim_index = 4;
-                {3'd2, 3'd3}: get_dim_index = 5;
-                {3'd3, 3'd1}: get_dim_index = 6;
-                {3'd3, 3'd2}: get_dim_index = 7;
-                {3'd3, 3'd3}: get_dim_index = 8;
-                default:      get_dim_index = 9;
-            endcase
-        end
-    endfunction
+    // Per-dimension toggle to alternate overwrite between the two slots of the same size
+    // dim_idx = (m-1)*5 + (n-1), ranges 0..24 for 1..5 x 1..5
+    reg replace_toggle [0:24];
+
+    // Clamp incoming dimensions to 1..5 to avoid invalid sizes propagating
+    wire [2:0] eff_wr_m = (wr_m == 0) ? 3'd1 : (wr_m > 3'd5 ? 3'd5 : wr_m);
+    wire [2:0] eff_wr_n = (wr_n == 0) ? 3'd1 : (wr_n > 3'd5 ? 3'd5 : wr_n);
+
+    // Dimension index for toggle array
+    wire [4:0] dim_idx = (eff_wr_m - 1) * 5 + (eff_wr_n - 1);
+
+    // Combinational search helpers
+    reg [1:0] same_cnt;
+    reg [3:0] same_idx0;
+    reg [3:0] same_idx1;
+    reg has_free;
+    reg [3:0] free_idx;
+
+    // Write target bookkeeping
+    reg [3:0] target_idx;
+    reg is_new_slot;
+    reg use_existing_id;
+
+    // Dimension counts (1..5 x 1..5 => 25 entries, each up to 10, 4 bits enough for our cap=2)
+    reg [3:0] dim_counts [0:24];
 
     integer i;
-    integer dim_idx, slot, store_pos;
+    integer j;
+
+    // Scan existing storage to find matches and free slots for current dimension
+    always @(*) begin
+        same_cnt = 0;
+        same_idx0 = 0;
+        same_idx1 = 0;
+        has_free = 0;
+        free_idx = 0;
+
+        for (j = 0; j < MAX_MATRICES; j = j + 1) begin
+            if (stored_valid[j] && stored_m[j] == eff_wr_m && stored_n[j] == eff_wr_n) begin
+                if (same_cnt == 0) same_idx0 = j[3:0];
+                else if (same_cnt == 1) same_idx1 = j[3:0];
+                if (same_cnt < 2) same_cnt = same_cnt + 1;
+            end
+            if (!stored_valid[j] && !has_free) begin
+                has_free = 1;
+                free_idx = j[3:0];
+            end
+        end
+    end
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -87,6 +126,8 @@ module matrix_storage_v2(
             rd_valid <= 0;
             rd_error <= 0;
             matrix_info <= 0;
+            write_index <= 0;
+            summary_counts <= 0;
             for (i = 0; i < MAX_MATRICES; i = i + 1) begin
                 stored_valid[i] <= 0;
                 stored_id[i] <= 0;
@@ -95,44 +136,73 @@ module matrix_storage_v2(
                 stored_data[i] <= 0;
             end
             for (i = 0; i < 25; i = i + 1) begin
-                dim_counter[i] <= 0;
+                replace_toggle[i] <= 0;
+                dim_counts[i] <= 0;
             end
         end else begin
-            // 清除完成信号
+            // Clear signals
             if (!write_en) wr_done <= 0;
             if (!read_en) begin
                 rd_valid <= 0;
                 rd_error <= 0;
             end
 
-            // 写入逻辑
+            // Write Logic with per-dimension 2-slot rotation
             if (write_en && !wr_done) begin
-                dim_idx = get_dim_index(wr_m, wr_n);
-                slot = dim_counter[dim_idx];
-                store_pos = dim_idx * 2 + slot;
-
-                if (store_pos < MAX_MATRICES) begin
-                    stored_m[store_pos] <= wr_m;
-                    stored_n[store_pos] <= wr_n;
-                    stored_data[store_pos] <= wr_data;
-                    stored_id[store_pos] <= next_id;
-                    stored_valid[store_pos] <= 1;
-
-                    wr_id <= next_id;
-                    wr_done <= 1;
-
-                    next_id <= next_id + 1;
-                    dim_counter[dim_idx] <= (slot == 1) ? 0 : 1;
-
-                    if (!stored_valid[store_pos] && total_count < MAX_MATRICES)
-                        total_count <= total_count + 1;
+                // Determine target slot
+                if (same_cnt >= 2) begin
+                    // Already have two of this size: overwrite alternately
+                    target_idx = replace_toggle[dim_idx] ? same_idx1 : same_idx0;
+                    replace_toggle[dim_idx] <= ~replace_toggle[dim_idx];
+                    is_new_slot = 0;
+                end else if (same_cnt == 1) begin
+                    if (has_free) begin
+                        target_idx = free_idx;
+                        is_new_slot = 1;
+                    end else begin
+                        target_idx = same_idx0; // no free slot, overwrite the existing one
+                        is_new_slot = 0;
+                    end
+                end else begin
+                    if (has_free) begin
+                        target_idx = free_idx;
+                        is_new_slot = 1;
+                    end else begin
+                        target_idx = write_index; // fallback global rotation
+                        is_new_slot = !stored_valid[write_index];
+                    end
                 end
+
+                // Decide whether to keep existing ID (overwrite same dimension) or assign new ID
+                use_existing_id = (!is_new_slot) && stored_valid[target_idx] &&
+                                   (stored_m[target_idx] == eff_wr_m) && (stored_n[target_idx] == eff_wr_n);
+
+                // Perform write
+                stored_m[target_idx]    <= eff_wr_m;
+                stored_n[target_idx]    <= eff_wr_n;
+                stored_data[target_idx] <= wr_data;
+                stored_id[target_idx]   <= use_existing_id ? stored_id[target_idx] : next_id;
+                stored_valid[target_idx]<= 1;
+
+                wr_id   <= use_existing_id ? stored_id[target_idx] : next_id;
+                wr_done <= 1;
+
+                // Advance ID and rotation pointer
+                if (!use_existing_id)
+                    next_id <= next_id + 1;
+                if (is_new_slot && total_count < MAX_MATRICES)
+                    total_count <= total_count + 1;
+
+                if (write_index == MAX_MATRICES-1)
+                    write_index <= 0;
+                else
+                    write_index <= write_index + 1;
             end
 
-            // 读取逻辑
+            // Read Logic
             if (read_en && !rd_valid && !rd_error) begin
                 rd_valid <= 0;
-                rd_error <= 1;  // 默认错误，找到后清除
+                rd_error <= 1;  // Default Error
 
                 for (i = 0; i < MAX_MATRICES; i = i + 1) begin
                     if (stored_valid[i] && stored_id[i] == rd_id) begin
@@ -145,32 +215,21 @@ module matrix_storage_v2(
                 end
             end
 
-            // 查询逻辑
+            // Query Logic
             if (query_en) begin
                 for (i = 0; i < MAX_MATRICES; i = i + 1) begin
                     if (stored_valid[i]) begin
-                        matrix_info[i*8 +: 8] <= {stored_id[i][1:0], stored_m[i], stored_n[i]};
+                        // Pack full 8-bit ID + dims (3b+3b) into 16-bit slot
+                        matrix_info[i*16 +: 16] <= {stored_id[i], stored_m[i], stored_n[i], 2'b00};
                     end else begin
-                        matrix_info[i*8 +: 8] <= 8'd0;
+                        matrix_info[i*16 +: 16] <= 16'd0;
                     end
                 end
-            end
-            
-            // 维度匹配逻辑 (始终有效，组合�?�辑或同步更�?)
-            // 这里使用同步更新
-            begin
-                match_ids <= 0;
-                // �?单的手写循环展开或�?�辑
-                // 由于Verilog循环比较麻烦，且我们知道�?�?2个，且存放在特定slot�?
-                // 暂时遍历�?有有效矩�?
-                // 这里的�?�辑稍微�?单化：找到匹配的就塞进去
-                // 为了�?单，我们每次重置match_ids
-                // 使用临时变量方便
             end
         end
     end
     
-    // 组合逻辑生成匹配ID列表
+    // Combinatorial Match Logic
     reg [3:0] match_cnt_temp;
     integer k;
     always @(*) begin
@@ -189,6 +248,39 @@ module matrix_storage_v2(
                     match_cnt_temp = match_cnt_temp + 1;
                 end
             end
+        end
+    end
+
+    // Dump-by-index combinational access
+    always @(*) begin
+        if (dump_en && dump_index < MAX_MATRICES) begin
+            dump_valid = stored_valid[dump_index];
+            dump_id    = stored_id[dump_index];
+            dump_m     = stored_m[dump_index];
+            dump_n     = stored_n[dump_index];
+            dump_data  = stored_data[dump_index];
+        end else begin
+            dump_valid = 0;
+            dump_id    = 0;
+            dump_m     = 0;
+            dump_n     = 0;
+            dump_data  = 0;
+        end
+    end
+
+    // Summary counts combinational
+    integer s;
+    integer t;
+    reg [3:0] dim_counts_comb [0:24];
+    always @(*) begin
+        for (s = 0; s < 25; s = s + 1) dim_counts_comb[s] = 0;
+        for (t = 0; t < MAX_MATRICES; t = t + 1) begin
+            if (stored_valid[t] && stored_m[t] != 0 && stored_n[t] != 0) begin
+                dim_counts_comb[(stored_m[t]-1)*5 + (stored_n[t]-1)] = dim_counts_comb[(stored_m[t]-1)*5 + (stored_n[t]-1)] + 1'b1;
+            end
+        end
+        for (s = 0; s < 25; s = s + 1) begin
+            summary_counts[s*4 +: 4] = dim_counts_comb[s];
         end
     end
 

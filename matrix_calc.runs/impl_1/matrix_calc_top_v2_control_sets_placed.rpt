@@ -1,0 +1,392 @@
+Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2017.4 (win64) Build 2086221 Fri Dec 15 20:55:39 MST 2017
+| Date         : Wed Dec 24 23:26:43 2025
+| Host         : LAPTOP-05DC09D2 running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file matrix_calc_top_v2_control_sets_placed.rpt
+| Design       : matrix_calc_top_v2
+| Device       : xc7a35t
+-----------------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Flip-Flop Distribution
+3. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Number of unique control sets                            |   320 |
+| Unused register locations in slices containing registers |   656 |
++----------------------------------------------------------+-------+
+
+
+2. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |              12 |            5 |
+| No           | No                    | Yes                    |             179 |           82 |
+| No           | Yes                   | No                     |              24 |            7 |
+| Yes          | No                    | No                     |             124 |           87 |
+| Yes          | No                    | Yes                    |            3477 |         1474 |
+| Yes          | Yes                   | No                     |               0 |            0 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+3. Detailed Control Set Information
+-----------------------------------
+
++----------------+---------------------------------------------+-----------------------------------+------------------+----------------+
+|  Clock Signal  |                Enable Signal                |          Set/Reset Signal         | Slice Load Count | Bel Load Count |
++----------------+---------------------------------------------+-----------------------------------+------------------+----------------+
+|  clk_IBUF_BUFG | u_uart_tx/tx_i_1_n_0                        | rst_IBUF                          |                1 |              1 |
+|  clk_IBUF_BUFG | u_fsm/countdown_seconds[3]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[19]_i_1__1_n_0     | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG |                                             | u_calc/u_conv/u_image_rom//i__n_0 |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[43]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/dump_idx[3]_i_1_n_0                   | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/state[3]_i_1_n_0             | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_fsm/FSM_sequential_auto_phase[3]_i_1_n_0  | rst_IBUF                          |                4 |              4 |
+|  clk_IBUF_BUFG | u_fsm/auto_attempts[3]_i_1_n_0              | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[15]                   | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_fsm/auto_idx[3]_i_1_n_0                   | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[35]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[171]_i_1__1_n_0    | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[123]_i_1__1_n_0    | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[115]_i_1__1_n_0    | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/auto_scalar[3]_i_1_n_0                | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_fsm/auto_scan_idx[3]_i_1_n_0              | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[59]_i_1_n_0               | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[11]_i_1_n_0               | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[11]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[3]_i_1_n_0                | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[27]_i_1_n_0               | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[43]_i_1_n_0               | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[67]_i_1_n_0               | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[35]_i_1_n_0               | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[51]_i_1_n_0               | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_fsm/conv_kernel[19]_i_1_n_0               | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/state                  | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[23]                   | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[31]                   | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[39]                   | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[47]                   | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[55]                   | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[7]                    | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[127]                  | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[119]                  | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[79]                   | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[103]                  | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[167]                  | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[87]                   | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[151]                  | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[71]                   | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[183]                  | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[191]                  | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[95]                   | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[199]                  | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[135]                  | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[63]                   | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[175]                  | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[143]                  | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[159]                  | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_output/col_idx                     | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_output/loop_idx                    | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_storage/total_count[3]_i_1_n_0            | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_fsm/kernel_elem_cnt                       | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/list_dump_idx[3]_i_1_n_0              | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[155]_i_1__1_n_0    | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_uart_rx/bit_idx0                          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/next_id1262_out                       | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_conv/out_i[3]_i_1_n_0              | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_fsm/op_type[3]_i_1_n_0                    | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_conv/out_j[3]_i_1_n_0              | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_fsm/parsed_id[3]_i_1_n_0                  | rst_IBUF                          |                4 |              4 |
+|  clk_IBUF_BUFG | u_matrix_input/p_0_in[111]                  | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[11]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[131]_i_1__1_n_0    | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[107]_i_1__1_n_0    | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[139]_i_1__1_n_0    | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_conv/state[3]_i_1__2_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[179]_i_1__1_n_0    | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[187]_i_1__1_n_0    | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[27]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[3]_i_1__1_n_0      | rst_IBUF                          |                4 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/generated_count[3]_i_1_n_0     | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[163]_i_1__1_n_0    | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[147]_i_1__1_n_0    | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[195]_i_1__2_n_0    | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[67]_i_1__1_n_0     | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[59]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[75]_i_1__1_n_0     | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[51]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[99]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[83]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/mat_C[91]_i_1__1_n_0     | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[107]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[131]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[139]_i_1_n_0          | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[147]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[171]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[115]_i_1_n_0          | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[123]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[155]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[163]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[179]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[187]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[195]_i_1_n_0          | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[19]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[3]_i_1_n_0            | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[43]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[59]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[83]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[27]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[67]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[75]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[51]_i_1_n_0           | rst_IBUF                          |                3 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[35]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[99]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_data[91]_i_1_n_0           | rst_IBUF                          |                2 |              4 |
+|  clk_IBUF_BUFG | u_matrix_gen/state[3]_i_1__0_n_0            | rst_IBUF                          |                1 |              4 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[180]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_fsm/FSM_sequential_state[4]_i_1_n_0       | rst_IBUF                          |                3 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[172]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[20]_i_1_n_0              | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[76]_i_1_n_0              | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[108]_i_1_n_0             | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[188]_i_1_n_0             | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[28]_i_1_n_0              | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[44]_i_1_n_0              | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[52]_i_1_n_0              | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[68]_i_1_n_0              | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[92]_i_1_n_0              | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[4]_i_1_n_0               | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[100]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[156]_i_1_n_0             | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[140]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[124]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[132]_i_1_n_0             | rst_IBUF                          |                3 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[116]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[148]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[196]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[12]_i_1_n_0              | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[84]_i_1_n_0              | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[164]_i_1_n_0             | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[36]_i_1_n_0              | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_matrix_output/summary_idx                 | rst_IBUF                          |                2 |              5 |
+|  clk_IBUF_BUFG | u_matrix_output/state                       | rst_IBUF                          |                4 |              5 |
+|  clk_IBUF_BUFG | u_calc/u_add/mat_C[60]_i_1_n_0              | rst_IBUF                          |                1 |              5 |
+|  clk_IBUF_BUFG | u_fsm/mat_A_rows                            | rst_IBUF                          |                1 |              6 |
+|  clk_IBUF_BUFG | u_calc/u_transpose/result_rows_n_0          | rst_IBUF                          |                4 |              6 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/result_rows[2]_i_1_n_0 | rst_IBUF                          |                3 |              6 |
+|  clk_IBUF_BUFG | u_calc/u_mul/result_rows[2]_i_1__0_n_0      | rst_IBUF                          |                3 |              6 |
+|  clk_IBUF_BUFG | u_calc/u_add/result_rows[2]_i_1__1_n_0      | rst_IBUF                          |                4 |              6 |
+|  clk_IBUF_BUFG | u_matrix_gen/gen_m[2]_i_1_n_0               | rst_IBUF                          |                3 |              6 |
+|  clk_IBUF_BUFG | u_fsm/display_phase_last[1]_i_1_n_0         | rst_IBUF                          |                2 |              6 |
+|  clk_IBUF_BUFG | u_fsm/list_target_n[2]_i_1_n_0              | rst_IBUF                          |                3 |              6 |
+|  clk_IBUF_BUFG | u_fsm/scalar_value[3]_i_1_n_0               | rst_IBUF                          |                3 |              7 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[599]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[631]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[623]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[639]_i_1_n_0           | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[551]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[55]_i_1_n_0            | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[71]_i_1_n_0            | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[95]_i_1_n_0            | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/rom_y                         | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/acc[7]_i_1_n_0                 | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/curr_b[3]_i_1_n_0              | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[111]_i_1__0_n_0          | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[103]_i_1__0_n_0          | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[119]_i_1__0_n_0          | rst_IBUF                          |                7 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[127]_i_1__0_n_0          | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[135]_i_1__0_n_0          | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[143]_i_1__0_n_0          | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[71]_i_1__0_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[31]_i_1__0_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[79]_i_1__0_n_0           | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[167]_i_1__0_n_0          | rst_IBUF                          |                8 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[47]_i_1__0_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[95]_i_1__0_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[191]_i_1__0_n_0          | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[151]_i_1__0_n_0          | rst_IBUF                          |                7 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[63]_i_1__0_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[159]_i_1__0_n_0          | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[183]_i_1__0_n_0          | rst_IBUF                          |                7 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[199]_i_1__0_n_0          | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[39]_i_1__0_n_0           | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[15]_i_1__0_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[23]_i_1__0_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[7]_i_1__0_n_0            | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[87]_i_1__0_n_0           | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[175]_i_1__0_n_0          | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_mul/mat_C[55]_i_1__0_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[127]_i_1_n_0     | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/j[2]_i_1__2_n_0        | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[119]_i_1_n_0     | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[135]_i_1_n_0     | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[103]_i_1_n_0     | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[111]_i_1_n_0     | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[151]_i_1_n_0     | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[175]_i_1_n_0     | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[143]_i_1_n_0     | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[167]_i_1_n_0     | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[15]_i_1_n_0      | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[159]_i_1_n_0     | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[183]_i_1_n_0     | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[199]_i_1_n_0     | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[55]_i_1_n_0      | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[23]_i_1_n_0      | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[39]_i_1_n_0      | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[47]_i_1_n_0      | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[31]_i_1_n_0      | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[191]_i_1_n_0     | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[71]_i_1_n_0      | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[7]_i_1_n_0       | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[79]_i_1_n_0      | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[87]_i_1_n_0      | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[95]_i_1_n_0      | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_scalar_mult/mat_C[63]_i_1_n_0      | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_add/idx                            | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[407]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_fsm/operand_id_A[7]_i_1_n_0               | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_fsm/operand_id_B[7]_i_1_n_0               | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/acc[7]_i_1__0_n_0             | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[103]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[111]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/img_value                     |                                   |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[399]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[143]_i_1_n_0           | rst_IBUF                          |                1 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[239]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[167]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[311]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[423]_i_1_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[431]_i_1_n_0           | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[455]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[15]_i_1_n_0            | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[279]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[383]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[471]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[503]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[127]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[287]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[223]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[231]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[23]_i_1_n_0            | rst_IBUF                          |                1 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[487]_i_1_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[359]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[511]_i_1_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[207]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[183]_i_1_n_0           | rst_IBUF                          |                1 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[463]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[47]_i_1_n_0            | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[495]_i_1_n_0           | rst_IBUF                          |                6 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[151]_i_1_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[367]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[479]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[295]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[175]_i_1_n_0           | rst_IBUF                          |                1 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[215]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[271]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[303]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[135]_i_1_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[447]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_storage/next_id[7]_i_1_n_0                | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_matrix_input/cur_col                      | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_matrix_input/expected_cnt                 | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[343]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[519]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[327]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[391]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[319]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[31]_i_1_n_0            | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[159]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[191]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[247]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[263]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[335]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[119]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[351]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[375]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[439]_i_1_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[199]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[255]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[39]_i_1_n_0            | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[415]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[583]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[527]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[543]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[567]_i_1_n_0           | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[591]_i_1_n_0           | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[607]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[615]_i_1_n_0           | rst_IBUF                          |                1 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[559]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[63]_i_1_n_0            | rst_IBUF                          |                5 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[79]_i_1_n_0            | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[87]_i_1_n_0            | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[7]_i_1_n_0             | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[535]_i_1_n_0           | rst_IBUF                          |                4 |              8 |
+|  clk_IBUF_BUFG | u_uart_rx/rx_data[7]_i_1_n_0                | rst_IBUF                          |                2 |              8 |
+|  clk_IBUF_BUFG | u_calc/u_conv/result[575]_i_1_n_0           | rst_IBUF                          |                3 |              8 |
+|  clk_IBUF_BUFG | u_matrix_output/id_has_tens_i_1_n_0         | rst_IBUF                          |                4 |              9 |
+|  clk_IBUF_BUFG | u_matrix_output/E[0]                        | rst_IBUF                          |                4 |             10 |
+|  clk_IBUF_BUFG | u_matrix_output/digit_h[1]_i_1_n_0          |                                   |                7 |             10 |
+|  clk_IBUF_BUFG | u_fsm/auto_m_b[2]_i_1_n_0                   | rst_IBUF                          |                3 |             11 |
+|  clk_IBUF_BUFG | u_matrix_output/next_after_tx[4]_i_1_n_0    | rst_IBUF                          |               10 |             12 |
+|  clk_IBUF_BUFG |                                             |                                   |                5 |             12 |
+|  clk_IBUF_BUFG | u_uart_tx/tx_shift                          | rst_IBUF                          |                5 |             13 |
+|  clk_IBUF_BUFG | u_fsm/auto_id_a[7]_i_1_n_0                  | rst_IBUF                          |                4 |             14 |
+|  clk_IBUF_BUFG | u_matrix_gen/lfsr[15]_i_1_n_0               | rst_IBUF                          |               13 |             16 |
+|  clk_IBUF_BUFG | u_matrix_input/timeout_cnt[15]_i_1_n_0      | rst_IBUF                          |                3 |             16 |
+|  clk_IBUF_BUFG | u_fsm/auto_rng[15]_i_1_n_0                  | rst_IBUF                          |                5 |             16 |
+|  clk_IBUF_BUFG | u_uart_rx/baud_cnt[15]_i_1_n_0              | rst_IBUF                          |                5 |             16 |
+|  clk_IBUF_BUFG |                                             | u_debounce/count[19]_i_1_n_0      |                5 |             20 |
+|  clk_IBUF_BUFG | u_fsm/auto_kernel[67]_i_1_n_0               | rst_IBUF                          |                5 |             21 |
+|  clk_IBUF_BUFG | u_calc/u_conv/cycles[31]_i_1_n_0            | rst_IBUF                          |                5 |             32 |
+|  clk_IBUF_BUFG | u_calc/u_conv/cycle_count[31]_i_1_n_0       | rst_IBUF                          |               14 |             32 |
+|  clk_IBUF_BUFG | u_fsm/mat_B_cols_reg[0][0]                  | rst_IBUF                          |               44 |            103 |
+|  clk_IBUF_BUFG | u_fsm/mat_A_data_reg[0][0]                  | rst_IBUF                          |               53 |            106 |
+|  clk_IBUF_BUFG | u_fsm/E[0]                                  |                                   |               78 |            106 |
+|  clk_IBUF_BUFG | u_matrix_gen/E[0]                           | rst_IBUF                          |               44 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_n_reg[1][0][0]          | rst_IBUF                          |               48 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_n_reg[3][0][0]          | rst_IBUF                          |               40 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_n_reg[4][0][0]          | rst_IBUF                          |               45 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_data_reg[2][0][0]       | rst_IBUF                          |               63 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_n_reg[8][0][0]          | rst_IBUF                          |               52 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_valid_reg[5][0]         | rst_IBUF                          |               39 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_n_reg[6][0]_1[0]        | rst_IBUF                          |               45 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_n_reg[9][0][0]          | rst_IBUF                          |               41 |            115 |
+|  clk_IBUF_BUFG | u_matrix_gen/stored_n_reg[7][0][0]          | rst_IBUF                          |               50 |            115 |
+|  clk_IBUF_BUFG | u_fsm/matrix_info_reg[159][0]               | rst_IBUF                          |               38 |            140 |
+|  clk_IBUF_BUFG |                                             | rst_IBUF                          |               82 |            179 |
++----------------+---------------------------------------------+-----------------------------------+------------------+----------------+
+
+
++--------+-----------------------+
+| Fanout | Number of ControlSets |
++--------+-----------------------+
+| 1      |                     1 |
+| 4      |                   108 |
+| 5      |                    28 |
+| 6      |                     8 |
+| 7      |                     1 |
+| 8      |                   143 |
+| 9      |                     1 |
+| 10     |                     2 |
+| 11     |                     1 |
+| 12     |                     2 |
+| 13     |                     1 |
+| 14     |                     1 |
+| 16+    |                    23 |
++--------+-----------------------+
+
+

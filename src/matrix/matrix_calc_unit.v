@@ -7,7 +7,7 @@
 //   4'b0010 = 加法 (A)
 //   4'b0100 = 标量乘法 (B)
 //   4'b1000 = 矩阵乘法 (C)
-//   4'b1001 = 卷积 (J) - Bonus
+//   4'b1111 = 卷积 (J) - Bonus
 //////////////////////////////////////////////////////////////////////////////////
 module matrix_calc_unit (
     input  wire        clk,
@@ -78,7 +78,7 @@ module matrix_calc_unit (
     assign add_start       = start && (op_type == 4'b0010);
     assign scalar_start    = start && (op_type == 4'b0100);
     assign mul_start       = start && (op_type == 4'b1000);
-    assign conv_start      = start && (op_type == 4'b1001);
+    assign conv_start      = start && (op_type == 4'b1111);
 
     // ============================================
     // 实例化所有运算模块
@@ -205,7 +205,7 @@ module matrix_calc_unit (
                 error = mul_error;
             end
 
-            4'b1001: begin // 卷积
+            4'b1111: begin // 卷积
                 // 卷积结果通过conv_result输出
                 result_rows = 3'd5;  // 实际是8行
                 result_cols = 3'd5;  // 实际是10列

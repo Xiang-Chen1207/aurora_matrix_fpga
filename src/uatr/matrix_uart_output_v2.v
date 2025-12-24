@@ -1,96 +1,132 @@
 `timescale 1ns / 1ps
 ////////////////////////////////////////////////////////////////////////////////
 // Module Name: matrix_uart_output_v2
-// Description: ¾ØÕó¼ÆËãÆ÷UARTÊä³öÄ£¿é
-// ¹¦ÄÜ£º½«¾ØÕóÊı¾İ£¨0-255£©×ª»»Îª¸ñÊ½»¯µÄASCII×Ö·û²¢Í¨¹ı´®¿Ú·¢ËÍ
-// Ö§³Ö£º¾ØÕóÊı¾İÊä³ö¡¢¾ØÕóĞÅÏ¢ÁĞ±í¡¢IDÁĞ±íÊä³ö
-// ÌØĞÔ£º×ó¶ÔÆë¸ñÊ½ (Bonus 3.1)
+// Description: ?????????UART??????
+// ????????????????0-255?????????????ASCII???????????????
+// ?????????????????????????ï¿½ï¿½???ID?ï¿½ï¿½????
+// ???????????? (Bonus 3.1)
 ////////////////////////////////////////////////////////////////////////////////
 
 module matrix_uart_output_v2(
     input wire clk,
     input wire rst_n,
     input wire start,
-    input wire [2:0] matrix_m,          // ¾ØÕóĞĞÊı (1-8)
-    input wire [2:0] matrix_n,          // ¾ØÕóÁĞÊı (1-10)
-    input wire [199:0] matrix_data,     // ¾ØÕóÊı¾İ (25¸öÔªËØ£¬Ã¿¸ö8Î»)
-    input wire [639:0] conv_data,       // ¾í»ı½á¹û (80¸öÔªËØ£¬Ã¿¸ö8Î»)
-    input wire is_conv_result,          // ÊÇ·ñÎª¾í»ı½á¹û
+    input wire [2:0] matrix_m,          // ???????? (1-8)
+    input wire [2:0] matrix_n,          // ???????? (1-10)
+    input wire [199:0] matrix_data,     // ???????? (25?????????8ï¿½ï¿½)
+    input wire [639:0] conv_data,       // ??????? (80?????????8ï¿½ï¿½)
+    input wire is_conv_result,          // ???????????
     input wire tx_busy,
-    input wire [1:0] mode,              // 0=Matrix Data, 1=Info List, 2=ID List
-    input wire [79:0] info_data,        // ´æ´¢Ä£¿éµÄ Matrix Info
-    input wire [15:0] match_ids,        // ²éÑ¯Æ¥ÅäµÄ ID ÁĞ±í
+    input wire [2:0] mode,              // 0=Matrix Data, 1=Info List, 2=ID List, 3=Summary, 4=ID+Matrix
+    input wire [159:0] info_data,       // Matrix Info: 10 entries *16 bits {id[7:0], m[2:0], n[2:0], 2'b0}
+    input wire [15:0] match_ids,        // ??????? ID ?ï¿½ï¿½?
+    input wire [3:0] total_count,
+    input wire [99:0] summary_counts,   // 25 dims *4bit counts, idx=(m-1)*5+(n-1)
+    input wire [7:0] matrix_id,
     output reg tx_start,
     output reg [7:0] tx_data,
     output reg output_done
 );
 
-    // ×´Ì¬»ú×´Ì¬¶¨Òå
+    // ??????????
     localparam IDLE          = 4'd0;
     localparam GET_ELEMENT   = 4'd1;
-    localparam SEND_DIGIT_H  = 4'd2;  // °ÙÎ»
-    localparam SEND_DIGIT_T  = 4'd3;  // Ê®Î»
-    localparam SEND_DIGIT_U  = 4'd4;  // ¸öÎ»
-    localparam SEND_SPACE    = 4'd5;  // Ìî³ä¿Õ¸ñ (×ó¶ÔÆë)
+    localparam SEND_DIGIT_H  = 4'd2;  // ??ï¿½ï¿½
+    localparam SEND_DIGIT_T  = 4'd3;  // ?ï¿½ï¿½
+    localparam SEND_DIGIT_U  = 4'd4;  // ??ï¿½ï¿½
+    localparam SEND_SPACE    = 4'd5;  // ????? (?????)
     localparam SEND_NEWLINE  = 4'd6;
     localparam WAIT_TX       = 4'd7;
     localparam DONE          = 4'd8;
     
-    // Info/ID ´òÓ¡×´Ì¬ (À©Õ¹)
+    // Info/ID ????? (???)
     localparam SEND_INFO_LOOP    = 4'd9;
     localparam PROCESS_INFO_ITEM = 4'd10;
     localparam SEND_IDS_LOOP     = 4'd11;
     localparam SEND_ID_SPACE     = 4'd12;
     localparam SEND_ID_DIGIT     = 4'd13; 
+    localparam SEND_SUMMARY_INIT   = 4'd14;
+    localparam SEND_SUMMARY_DIM    = 4'd15;
+    localparam SEND_SUMMARY_NEWLINE= 5'd16;
+    localparam SEND_ID_FIRST       = 5'd17;
+    localparam SEND_ID_SECOND      = 5'd18;
+    localparam SEND_HDR_SPACE1     = 5'd19;
+    localparam SEND_HDR_M          = 5'd20;
+    localparam SEND_HDR_SPACE2     = 5'd21;
+    localparam SEND_HDR_N          = 5'd22;
+    localparam SEND_HDR_NEWLINE    = 5'd23;
 
-    // ÄÚ²¿¼Ä´æÆ÷/ÏßÍø
-    reg [4:0] state, next_after_tx; // À©Õ¹µ½5Î»ÒÔÖ§³Ö¸ü¶à×´Ì¬
+    // ????????/????
+    reg [4:0] state, next_after_tx; // ?????5ï¿½ï¿½??????????
     reg [3:0] print_step;
     reg [3:0] loop_idx;
     reg [2:0] row_idx;
-    reg [2:0] col_idx;
+    reg [3:0] col_idx; // needs 0-9 for conv (10 cols)
     reg [2:0] chars_printed; // Bonus 3.1: Alignment tracking
 
+    // Summary helpers
+    reg [4:0] summary_idx; // 0..24 for 1..5 x 1..5
+    reg [3:0] summary_count;
+
     reg [7:0] element_value;
+    reg [3:0] id_tens;
+    reg [3:0] id_ones;
+    reg id_has_tens;
     
-    // ¶¯Ì¬ÌáÈ¡ info_byte (ĞŞ¸´ loop_idx is not constant ´íÎó)
-    // Ê¹ÓÃ Indexed Part-Select: [base +: width]
-    wire [7:0] current_info_byte;
-    assign current_info_byte = info_data[loop_idx*8 +: 8];
+    // Current info word (16 bits per slot): {id[7:0], m[2:0], n[2:0], 2'b0}
+    wire [15:0] current_info_word;
+    assign current_info_word = info_data[loop_idx*16 +: 16];
     
-    // ¶¯Ì¬ÌáÈ¡ match_id (ĞŞ¸´ loop_idx is not constant ´íÎó)
+    // ?????? match_id (??? loop_idx is not constant ????)
     wire [3:0] current_match_id;
     assign current_match_id = match_ids[loop_idx*4 +: 4];
 
-    // ÊıÖµ×ª»»¸¨Öú±äÁ¿
+    // Summary decoding helpers
+    wire [3:0] total_tens = total_count / 10;
+    wire [3:0] total_ones = total_count % 10;
+    wire [3:0] summary_count_wire = summary_counts[summary_idx*4 +: 4];
+    wire [2:0] summary_m = dim_m_from_idx(summary_idx);
+    wire [2:0] summary_n = dim_n_from_idx(summary_idx);
+
+    // å½“å‰å…ƒç´ ä¸æ‹†åˆ†å‡ºçš„æ•°å­—
     reg [7:0] current_value;
     reg [3:0] digit_h, digit_t, digit_u;
     reg has_hundreds, has_tens;
 
-    // Êµ¼ÊĞĞÁĞÊı
-    wire [3:0] actual_rows = is_conv_result ? 4'd8 : {1'b0, matrix_m};
-    wire [3:0] actual_cols = is_conv_result ? 4'd10 : {1'b0, matrix_n};
-
-    // Ï¡Êè¾ØÕó¶ÁÈ¡º¯Êı (5x5 layout)
+    // å–çŸ©é˜µå…ƒç´ ï¼ˆç¨€ç– 5x5ï¼‰
     function [7:0] get_matrix_element;
-        input [6:0] idx; // row*5 + col
+        input [6:0] idx; // row*5 + colï¼ŒèŒƒå›´0-24
         input [199:0] data;
         begin
-            // idx range 0-24
-            // data format: element 0 at [7:0], element 1 at [15:8]...
-            // Indexed Part Select
             get_matrix_element = data[idx*8 +: 8];
         end
     endfunction
 
+    // å–å·ç§¯ç»“æœå…ƒç´ 
     function [7:0] get_conv_element;
-        input [6:0] idx; // linear 0-79
+        input [6:0] idx; // çº¿æ€§ 0-79
         input [639:0] data;
         begin
             get_conv_element = data[idx*8 +: 8];
         end
     endfunction
 
+    // å°† summary_idx æ˜ å°„åˆ° m,n (1..5)
+    function [2:0] dim_m_from_idx;
+        input [4:0] idx;
+        begin
+            dim_m_from_idx = (idx / 5) + 1; // idx 0..24
+        end
+    endfunction
+
+    function [2:0] dim_n_from_idx;
+        input [4:0] idx;
+        begin
+            dim_n_from_idx = (idx % 5) + 1;
+        end
+    endfunction
+
+    // æ•°å€¼è½¬ ASCII
     function [7:0] to_ascii;
         input [3:0] val;
         begin
@@ -99,7 +135,14 @@ module matrix_uart_output_v2(
         end
     endfunction
 
-    // Ö÷×´Ì¬»ú
+    // è®¡ç®—å®é™…è¾“å‡ºçš„è¡Œåˆ—ï¼ˆå·ç§¯å›ºå®š 8x10ï¼Œå¦åˆ™ä½¿ç”¨çŸ©é˜µç»´åº¦ï¼‰
+    wire [3:0] actual_rows = is_conv_result ? 4'd8  : {1'b0, matrix_m};
+    wire [3:0] actual_cols = is_conv_result ? 4'd10 : {1'b0, matrix_n};
+
+    // ?????? - ??? start ?????, ?? start ?????
+    reg start_prev;
+    wire start_pulse = start & ~start_prev; // ????????
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= IDLE;
@@ -112,21 +155,104 @@ module matrix_uart_output_v2(
             loop_idx <= 0;
             print_step <= 0;
             chars_printed <= 0;
+            start_prev <= 0;
+            summary_idx <= 0;
+            summary_count <= 0;
+            id_tens <= 0;
+            id_ones <= 0;
+            id_has_tens <= 0;
         end else begin
+            // ???? start ?????
+            start_prev <= start;
+
             case (state)
                 IDLE: begin
                     output_done <= 0;
-                    if (start) begin
+                    if (start_pulse) begin
                         row_idx <= 0;
                         col_idx <= 0;
                         loop_idx <= 0;
                         chars_printed <= 0;
                         print_step <= 0;
+                        summary_idx <= 0;
+                        summary_count <= 0;
                         
                         if (mode == 0) state <= GET_ELEMENT;
                         else if (mode == 1) state <= SEND_INFO_LOOP; // Show Info
                         else if (mode == 2) state <= SEND_IDS_LOOP;  // Show IDs
-                        else state <= DONE;
+                        else if (mode == 3) state <= SEND_SUMMARY_INIT;
+                        else if (mode == 4) begin
+                            id_tens <= matrix_id / 10;
+                            id_ones <= matrix_id % 10;
+                            id_has_tens <= (matrix_id >= 8'd10);
+                            state <= SEND_ID_FIRST;
+                        end else state <= DONE;
+                    end
+                end
+
+                // ==========================
+                // Mode 4: ID header then Matrix Data
+                // ==========================
+                SEND_ID_FIRST: begin
+                    if (!tx_busy && !tx_start) begin
+                        tx_data <= to_ascii(id_has_tens ? id_tens : id_ones);
+                        tx_start <= 1;
+                        state <= WAIT_TX;
+                        next_after_tx <= id_has_tens ? SEND_ID_SECOND : SEND_HDR_SPACE1;
+                    end
+                end
+
+                SEND_ID_SECOND: begin
+                    if (!tx_busy && !tx_start) begin
+                        tx_data <= to_ascii(id_ones);
+                        tx_start <= 1;
+                        state <= WAIT_TX;
+                        next_after_tx <= SEND_HDR_SPACE1;
+                    end
+                end
+
+                SEND_HDR_SPACE1: begin
+                    if (!tx_busy && !tx_start) begin
+                        tx_data <= 8'd32; // space
+                        tx_start <= 1;
+                        state <= WAIT_TX;
+                        next_after_tx <= SEND_HDR_M;
+                    end
+                end
+
+                SEND_HDR_M: begin
+                    if (!tx_busy && !tx_start) begin
+                        tx_data <= to_ascii({1'b0, matrix_m});
+                        tx_start <= 1;
+                        state <= WAIT_TX;
+                        next_after_tx <= SEND_HDR_SPACE2;
+                    end
+                end
+
+                SEND_HDR_SPACE2: begin
+                    if (!tx_busy && !tx_start) begin
+                        tx_data <= 8'd32; // space
+                        tx_start <= 1;
+                        state <= WAIT_TX;
+                        next_after_tx <= SEND_HDR_N;
+                    end
+                end
+
+                SEND_HDR_N: begin
+                    if (!tx_busy && !tx_start) begin
+                        tx_data <= to_ascii({1'b0, matrix_n});
+                        tx_start <= 1;
+                        state <= WAIT_TX;
+                        next_after_tx <= SEND_HDR_NEWLINE;
+                    end
+                end
+
+                SEND_HDR_NEWLINE: begin
+                    if (!tx_busy && !tx_start) begin
+                        tx_data <= 8'd10; // newline
+                        tx_start <= 1;
+                        state <= WAIT_TX;
+                        next_after_tx <= GET_ELEMENT;
                     end
                 end
 
@@ -134,15 +260,15 @@ module matrix_uart_output_v2(
                 // Mode 0: Matrix Data (Left Aligned)
                 // ==========================
                 GET_ELEMENT: begin
-                    // »ñÈ¡µ±Ç°ÔªËØÖµ
+                    // è¯»å–å½“å‰å…ƒç´ ï¼›ç”¨é˜»å¡èµ‹å€¼ï¼Œé¿å…åŒå‘¨æœŸä½¿ç”¨æ—§å€¼
                     if (is_conv_result) begin
-                        current_value <= get_conv_element(row_idx * 10 + col_idx, conv_data);
+                        current_value = get_conv_element(row_idx * 10 + col_idx, conv_data);
                     end else begin
                         // Sparse 5x5: idx = row*5 + col
-                        current_value <= get_matrix_element(row_idx * 5 + col_idx, matrix_data);
+                        current_value = get_matrix_element(row_idx * 5 + col_idx, matrix_data);
                     end
 
-                    // ¼ÆËãÎ»Êı
+                    // åˆ¤æ–­ä½æ•°
                     if (current_value >= 8'd100) begin
                         digit_h <= current_value / 100;
                         digit_t <= (current_value / 10) % 10;
@@ -163,9 +289,9 @@ module matrix_uart_output_v2(
                         digit_u <= current_value[3:0];
                         has_hundreds <= 0;
                         has_tens <= 0;
-                        state <= SEND_DIGIT_U; // Ö»ÓĞ¸öÎ»
+                        state <= SEND_DIGIT_U; // åªæœ‰ä¸ªä½
                     end
-                    chars_printed <= 0; // ÖØÖÃ×Ö·û¼ÆÊı
+                    chars_printed <= 0; // é‡ç½®æœ¬å…ƒç´ çš„å­—ç¬¦è®¡æ•°
                 end
 
                 SEND_DIGIT_H: begin
@@ -199,7 +325,7 @@ module matrix_uart_output_v2(
                 end
 
                 // Bonus 3.1: Left Alignment padding
-                // ×Ü¿í¶È¹Ì¶¨Îª 4 (ÀıÈç "255 " »ò "3   ")
+                // ???????? 4 (???? "255 " ?? "3   ")
                 SEND_SPACE: begin
                     if (!tx_busy && !tx_start) begin
                         if (chars_printed < 4) begin
@@ -253,45 +379,88 @@ module matrix_uart_output_v2(
                 PROCESS_INFO_ITEM: begin
                     if (!tx_busy && !tx_start) begin
                         tx_start <= 1;
-                        
-                        // Ê¹ÓÃ wire current_info_byte ÌáÈ¡µÄµ±Ç°Êı¾İ
-                        // Byte structure: {id[1:0], m[2:0], n[2:0]} (Example assumption from storage)
-                        // Actually storage sends: {id[1:0], m[2:0], n[2:0]} packed in 8 bits? 
-                        // Wait, ID is 4 bits in storage V2? 
-                        // Storage V2 output info_data is 80 bits. 10 items * 8 bits.
-                        // Item: {id[1:0], m[2:0], n[2:0]} -> 2+3+3 = 8 bits.
-                        // Wait, ID is usually 0-9, so 4 bits. 
-                        // But 80 bits for 10 matrices implies 8 bits per matrix.
-                        // So ID must be compressed or implied?
-                        // Let's assume the 8 bits are {id_low2, m_3, n_3}. 
-                        // Note: If ID > 3, this packing fails. 
-                        // Let's assume ID corresponds to loop_idx for display if not stored explicitly?
-                        // Actually, storage V2 stores {id[1:0], m[2:0], n[2:0]}. ID is 2 bits?
-                        // If ID is 0-9, we need 4 bits. 
-                        // If storage only supports 4 stored matrices logic might be different.
-                        // Let's assume for Info Display we just print loop_idx as ID if 2 bits aren't enough,
-                        // OR assuming 2 bits ID is just for match list. 
-                        // Ah, the Spec says "Matrix Info String".
-                        // Let's trust the data is packed as {id[1:0], m[2:0], n[2:0]} for now.
-                        
-                        case (print_step)
-                            0: tx_data <= to_ascii({2'b0, current_info_byte[7:6]}); // ID
-                            1: tx_data <= 8'd45; // '-'
-                            2: tx_data <= to_ascii({1'b0, current_info_byte[5:3]}); // m
-                            3: tx_data <= 8'd45; // '-'
-                            4: tx_data <= to_ascii({1'b0, current_info_byte[2:0]}); // n
-                            5: tx_data <= 8'd32; // ' '
-                            default: tx_data <= 8'd32;
-                        endcase
-                        
                         state <= WAIT_TX;
-                        if (print_step < 5) begin
-                             print_step <= print_step + 1;
-                             next_after_tx <= PROCESS_INFO_ITEM;
-                        end else begin
-                             loop_idx <= loop_idx + 1; // Next matrix
-                             next_after_tx <= SEND_INFO_LOOP;
-                        end
+
+                        // current_info_word: {id[15:8], m[7:5], n[4:2], 2'b0}
+                        // Format: ID-M-N (ID without leading zero if <10)
+                        // Derive decimal digits for ID
+                        // Note: id_up_to_255; we print max 3 digits (hundreds handled in to_ascii)
+                        case (print_step)
+                            0: begin // first ID digit (hundreds or tens/ones)
+                                if (current_info_word[15:8] >= 8'd100)
+                                    tx_data <= to_ascii((current_info_word[15:8] / 100) % 10);
+                                else if (current_info_word[15:8] >= 8'd10)
+                                    tx_data <= to_ascii((current_info_word[15:8] / 10) % 10);
+                                else
+                                    tx_data <= to_ascii(current_info_word[15:8] % 10);
+                                // Decide next step based on ID magnitude
+                                if (current_info_word[15:8] >= 8'd100)
+                                    print_step <= 1; // need tens next
+                                else if (current_info_word[15:8] >= 8'd10)
+                                    print_step <= 2; // ones next
+                                else
+                                    print_step <= 3; // go to dash
+                                next_after_tx <= PROCESS_INFO_ITEM;
+                            end
+
+                            1: begin // second ID digit (tens when hundreds exist)
+                                tx_data <= to_ascii((current_info_word[15:8] / 10) % 10);
+                                print_step <= 2; // ones next
+                                state <= WAIT_TX;
+                                next_after_tx <= PROCESS_INFO_ITEM;
+                            end
+
+                            2: begin // third ID digit (ones)
+                                tx_data <= to_ascii(current_info_word[15:8] % 10);
+                                print_step <= 3; // proceed to dash
+                                state <= WAIT_TX;
+                                next_after_tx <= PROCESS_INFO_ITEM;
+                            end
+
+                            3: begin // '-'
+                                tx_data <= 8'd45;
+                                print_step <= 4;
+                                state <= WAIT_TX;
+                                next_after_tx <= PROCESS_INFO_ITEM;
+                            end
+
+                            4: begin // m
+                                tx_data <= to_ascii({1'b0, current_info_word[7:5]});
+                                print_step <= 5;
+                                state <= WAIT_TX;
+                                next_after_tx <= PROCESS_INFO_ITEM;
+                            end
+
+                            5: begin // '-'
+                                tx_data <= 8'd45;
+                                print_step <= 6;
+                                state <= WAIT_TX;
+                                next_after_tx <= PROCESS_INFO_ITEM;
+                            end
+
+                            6: begin // n
+                                tx_data <= to_ascii({1'b0, current_info_word[4:2]});
+                                print_step <= 7;
+                                state <= WAIT_TX;
+                                next_after_tx <= PROCESS_INFO_ITEM;
+                            end
+
+                            7: begin // trailing space
+                                tx_data <= 8'd32;
+                                state <= WAIT_TX;
+                                next_after_tx <= SEND_INFO_LOOP;
+                                print_step <= 0;
+                                loop_idx <= loop_idx + 1; // Next matrix
+                            end
+
+                            default: begin
+                                tx_data <= 8'd32;
+                                print_step <= 0;
+                                state <= WAIT_TX;
+                                next_after_tx <= SEND_INFO_LOOP;
+                                loop_idx <= loop_idx + 1;
+                            end
+                        endcase
                     end
                 end
 
@@ -332,6 +501,66 @@ module matrix_uart_output_v2(
                     end
                 end
 
+                // ==========================
+                // Mode 3: Summary (total_count + m*n*count ...)
+                // ==========================
+                SEND_SUMMARY_INIT: begin
+                    if (!tx_busy && !tx_start) begin
+                        if (print_step == 0) begin
+                            if (total_tens != 0) begin
+                                tx_data <= to_ascii(total_tens);
+                                tx_start <= 1;
+                                state <= WAIT_TX;
+                                next_after_tx <= SEND_SUMMARY_INIT;
+                                print_step <= 1;
+                            end else begin
+                                print_step <= 1; // skip leading zero
+                            end
+                        end else if (print_step == 1) begin
+                            tx_data <= to_ascii(total_ones);
+                            tx_start <= 1;
+                            state <= WAIT_TX;
+                            next_after_tx <= SEND_SUMMARY_INIT;
+                            print_step <= 2;
+                        end else if (print_step == 2) begin
+                            tx_data <= 8'd32; // space
+                            tx_start <= 1;
+                            state <= WAIT_TX;
+                            next_after_tx <= SEND_SUMMARY_DIM;
+                            print_step <= 0;
+                            summary_idx <= 0;
+                        end
+                    end
+                end
+
+                SEND_SUMMARY_DIM: begin
+                    if (summary_idx > 5'd24) begin
+                        state <= SEND_SUMMARY_NEWLINE;
+                    end else if (summary_count_wire == 0) begin
+                        summary_idx <= summary_idx + 1'b1; // skip zero count
+                    end else if (!tx_busy && !tx_start) begin
+                        case (print_step)
+                            4'd0: begin tx_data <= to_ascii(summary_m); tx_start <= 1; state <= WAIT_TX; next_after_tx <= SEND_SUMMARY_DIM; print_step <= 1; end
+                            4'd1: begin tx_data <= 8'd45; tx_start <= 1; state <= WAIT_TX; next_after_tx <= SEND_SUMMARY_DIM; print_step <= 2; end // '-'
+                            4'd2: begin tx_data <= to_ascii(summary_n); tx_start <= 1; state <= WAIT_TX; next_after_tx <= SEND_SUMMARY_DIM; print_step <= 3; end
+                            4'd3: begin tx_data <= 8'd45; tx_start <= 1; state <= WAIT_TX; next_after_tx <= SEND_SUMMARY_DIM; print_step <= 4; end // '-'
+                            4'd4: begin tx_data <= to_ascii(summary_count_wire[3:0]); tx_start <= 1; state <= WAIT_TX; next_after_tx <= SEND_SUMMARY_DIM; print_step <= 5; end
+                            4'd5: begin tx_data <= 8'd32; tx_start <= 1; state <= WAIT_TX; next_after_tx <= SEND_SUMMARY_DIM; print_step <= 0; summary_idx <= summary_idx + 1'b1; end
+                            default: begin print_step <= 0; end
+                        endcase
+                    end
+                end
+
+                // Add a line break after the summary line to separate it from matrix dumps
+                SEND_SUMMARY_NEWLINE: begin
+                    if (!tx_busy && !tx_start) begin
+                        tx_data <= 8'd10; // newline
+                        tx_start <= 1;
+                        state <= WAIT_TX;
+                        next_after_tx <= DONE;
+                    end
+                end
+
                 WAIT_TX: begin
                     tx_start <= 0;
                     if (!tx_busy) begin // Wait for busy to go low (tx idle)
@@ -340,8 +569,10 @@ module matrix_uart_output_v2(
                 end
 
                 DONE: begin
+                    // ???????? output_done ? 1, ???? IDLE,
+                    // ????? start ???????, ?????? start ???????
                     output_done <= 1;
-                    if (!start) state <= IDLE; // Wait for start to drop
+                    state <= IDLE;
                 end
                 
                 default: state <= IDLE;

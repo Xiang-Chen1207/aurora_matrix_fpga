@@ -23,11 +23,12 @@ module mat_conv (
     localparam IDLE       = 4'd0;
     localparam INIT       = 4'd1;
     localparam LOAD_IMG   = 4'd2;
-    localparam CALC       = 4'd3;
-    localparam ACCUMULATE = 4'd4;
-    localparam STORE      = 4'd5;
-    localparam NEXT       = 4'd6;
-    localparam DONE       = 4'd7;
+    localparam WAIT_ROM   = 4'd3; // wait one cycle for synchronous ROM data
+    localparam CALC       = 4'd4;
+    localparam ACCUMULATE = 4'd5;
+    localparam STORE      = 4'd6;
+    localparam NEXT       = 4'd7;
+    localparam DONE       = 4'd8;
 
     reg [3:0] state;
     reg [3:0] out_i, out_j;     // 输出位置 (0-7, 0-9)
@@ -110,12 +111,19 @@ module mat_conv (
                     rom_x <= out_i + k_i;
                     rom_y <= out_j + k_j;
                     img_valid <= 1'b0;
+                    state <= WAIT_ROM;
+                    cycles <= cycles + 1;
+                end
+
+                WAIT_ROM: begin
+                    // 一拍等待同步ROM输出稳定
+                    img_valid <= 1'b0;
                     state <= CALC;
                     cycles <= cycles + 1;
                 end
 
                 CALC: begin
-                    // 等待ROM数据有效，选择卷积核元素
+                    // 读取ROM数据并选择卷积核元素
                     img_valid <= 1'b1;
                     img_value <= rom_data;
 

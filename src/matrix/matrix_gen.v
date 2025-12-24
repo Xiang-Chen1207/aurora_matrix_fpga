@@ -26,22 +26,45 @@ module matrix_gen(
     // LFSR for Random Number Generation
     reg [15:0] lfsr;
     wire [15:0] lfsr_next;
-    
+
     // Xorshift or simple tap feedback
     // Tap for 16-bit: 16, 14, 13, 11 (indices 15, 13, 12, 10)
     wire feedback = lfsr[15] ^ lfsr[13] ^ lfsr[12] ^ lfsr[10];
     assign lfsr_next = {lfsr[14:0], feedback};
+
+    // Extra de-correlation: advance LFSR several steps before using the value
+    // This reduces adjacency correlation between successive elements.
+    function [15:0] advance_lfsr_multi;
+        input [15:0] seed;
+        integer k;
+        reg [15:0] tmp;
+        begin
+            tmp = seed;
+            for (k = 0; k < 4; k = k + 1) begin
+                tmp = {tmp[14:0], (tmp[15] ^ tmp[13] ^ tmp[12] ^ tmp[10])};
+            end
+            advance_lfsr_multi = tmp;
+        end
+    endfunction
+
+    // One-step + multi-step advance for use per element
+    wire [15:0] rng_advance = advance_lfsr_multi(lfsr_next);
     
     // State Machine
     localparam IDLE = 0;
     localparam GENERATING = 1;
-    localparam WAIT_STORE = 2; // Wait for storage to accept (1 cycle typically enough if valid handled right)
-    localparam DONE = 3;
+    localparam WAIT_STORE = 2; // Pulse valid for current matrix
+    localparam PREP_NEXT = 3;  // Clear buffer before next matrix
+    localparam DONE = 4;
     
-    reg [1:0] state;
-    reg [3:0] generated_count;
+    reg [3:0] state;
+    reg [3:0] generated_count; // counts matrices actually handed to storage
     reg [2:0] row_idx;
     reg [2:0] col_idx;
+
+    // 有效维度钳位到 1..5，避免 0 或 >5 导致下溢/越界
+    wire [2:0] eff_m = (m == 0) ? 3'd1 : (m > 3'd5 ? 3'd5 : m);
+    wire [2:0] eff_n = (n == 0) ? 3'd1 : (n > 3'd5 ? 3'd5 : n);
     
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -56,43 +79,49 @@ module matrix_gen(
             row_idx <= 0;
             col_idx <= 0;
         end else begin
-            lfsr <= lfsr_next;
-            
             case (state)
                 IDLE: begin
                     gen_done <= 0;
                     gen_valid <= 0;
                     if (start) begin
+                        // Reseed using dimensions/count; ensures first matrix not all zeros
+                        // If xor accidentally hits 0, fall back to non-zero seed mix.
+                        if ((lfsr ^ {5'h1F, eff_m, eff_n, count}) == 16'd0)
+                            lfsr <= (16'hACE1 ^ {5'h1F, eff_m, eff_n, count});
+                        else
+                            lfsr <= (lfsr ^ {5'h1F, eff_m, eff_n, count});
                         state <= GENERATING;
                         generated_count <= 0;
                         row_idx <= 0;
                         col_idx <= 0;
-                        gen_m <= m;
-                        gen_n <= n;
+                        gen_m <= eff_m;
+                        gen_n <= eff_n;
                         gen_data <= 0;
+                    end else begin
+                        // Keep LFSR alive in idle to avoid correlation across runs
+                        if (lfsr_next == 16'd0)
+                            lfsr <= (16'hACE1 ^ {5'h1F, eff_m, eff_n, count});
+                        else
+                            lfsr <= lfsr_next;
                     end
                 end
                 
                 GENERATING: begin
                     gen_valid <= 0;
-                    // Generate one element per clock cycle or all at once?
-                    // To be simple and robust, let's fill the register map 
-                    // But we can just fill it instantly if we want, but filling 25 elements 
-                    // from a single LFSR might need shifting.
-                    // Let's do it per element to ensure randomness distribution (though 1 cycle is deterministic).
-                    // Actually, for 5x5, we can just grab different slices of LFSR over time.
-                    // Let's loop through rows and cols.
-                    
-                    // Generate a digit 0-9
-                    // Simple mod 10 or check range. 
-                    // Using lfsr % 10.
-                    
-                    // Sparse storage indexing: (row * 5 + col)
-                    gen_data[(row_idx * 5 + col_idx) * 8 +: 8] <= (lfsr % 10);
-                    
-                    if (col_idx == n - 1) begin
+                    // Advance LFSR and use the new value for this element to avoid stale/zero first samples
+                    // Guard against all-zero state by reseeding if needed.
+                    begin : advance_block
+                        reg [15:0] next_val;
+                        next_val = rng_advance;
+                        if (rng_advance == 16'd0)
+                            next_val = 16'hACE1 ^ {5'h1F, eff_m, eff_n, count};
+                        lfsr <= next_val;
+                        gen_data[(row_idx * 5 + col_idx) * 8 +: 8] <= (next_val % 10);
+                    end
+
+                    if (col_idx == eff_n - 1) begin
                         col_idx <= 0;
-                        if (row_idx == m - 1) begin
+                        if (row_idx == eff_m - 1) begin
                             // Matrix full
                             state <= WAIT_STORE;
                         end else begin
@@ -104,28 +133,31 @@ module matrix_gen(
                 end
                 
                 WAIT_STORE: begin
-                    // Trigger storage write
+                    // Pulse write for the filled matrix
                     gen_valid <= 1;
-                    // Wait one cycle for valid signal to be registered by controller/storage
-                    // Actually, if we hold valid high, the FSM/Storage should latch it.
-                    // We need to move to next matrix or done.
-                    
+
                     if (generated_count + 1 >= count) begin
-                        state <= DONE;
                         generated_count <= generated_count + 1;
+                        state <= DONE;
                     end else begin
                         // Need to generate next matrix
                         generated_count <= generated_count + 1;
-                        row_idx <= 0;
-                        col_idx <= 0;
-                        gen_data <= 0;
-                        state <= GENERATING;
+                        state <= PREP_NEXT;
                         // Important: deassert valid after one cycle so we don't write same matrix twice
                         // But here we transition to GENERATING which sets valid<=0 immediately.
                         // However, we need to make sure the receiver catches it.
                         // Assuming receiver is fast. Use a handshake if needed?
                         // For now, assume 1 cycle pulse is enough if receiver is always ready in GEN state.
                     end
+                end
+
+                PREP_NEXT: begin
+                    // Drop valid and clear buffer after storage captured the matrix
+                    gen_valid <= 0;
+                    gen_data <= 0;
+                    row_idx <= 0;
+                    col_idx <= 0;
+                    state <= GENERATING;
                 end
                 
                 DONE: begin

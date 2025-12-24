@@ -2,62 +2,213 @@
 # Vivado v2017.4 (64-bit)
 # SW Build 2086221 on Fri Dec 15 20:55:39 MST 2017
 # IP Build 2085800 on Fri Dec 15 22:25:07 MST 2017
-# Start of session at: Tue Dec 23 00:06:31 2025
-# Process ID: 37076
+# Start of session at: Wed Dec 24 00:21:58 2025
+# Process ID: 34436
 # Current directory: E:/desk/matrix_calc
-# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent32860 E:\desk\matrix_calc\matrix_calc.xpr
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent30528 E:\desk\matrix_calc\matrix_calc.xpr
 # Log file: E:/desk/matrix_calc/vivado.log
 # Journal file: E:/desk/matrix_calc\vivado.jou
 #-----------------------------------------------------------
 start_gui
 open_project E:/desk/matrix_calc/matrix_calc.xpr
+INFO: [Project 1-313] Project file moved from 'E:/matrix_calc' since last save.
 Scanning sources...
 Finished scanning sources
 INFO: [IP_Flow 19-234] Refreshing IP repositories
 INFO: [IP_Flow 19-1704] No user IP repositories specified
 INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Vivado/2017.4/data/ip'.
 update_compile_order -fileset sources_1
-source E:/desk/matrix_calc/update_project.tcl
-# set project_files [get_files -filter {IS_AUTO_DISABLED == 0 || IS_AUTO_DISABLED == 1}]
-# if {[llength $project_files] > 0} {
-#     remove_files $project_files
-# }
-# add_files -norecurse {
-#     E:/desk/matrix_calc/src/controller_fsm_v2.v
-#     E:/desk/matrix_calc/src/debounce.v
-#     E:/desk/matrix_calc/src/defs.vh
-#     E:/desk/matrix_calc/src/matrix_calc_top_v2.v
-#     E:/desk/matrix_calc/src/seg_display_v2.v
-# }
-# add_files -norecurse {
-#     E:/desk/matrix_calc/src/matrix/input_image_rom.v
-#     E:/desk/matrix_calc/src/matrix/mat_add.v
-#     E:/desk/matrix_calc/src/matrix/mat_conv.v
-#     E:/desk/matrix_calc/src/matrix/mat_mul.v
-#     E:/desk/matrix_calc/src/matrix/mat_scalar_mult.v
-#     E:/desk/matrix_calc/src/matrix/mat_transpose.v
-#     E:/desk/matrix_calc/src/matrix/matrix_calc_unit.v
-#     E:/desk/matrix_calc/src/matrix/matrix_gen.v
-#     E:/desk/matrix_calc/src/matrix/matrix_storage_v2.v
-# }
-# add_files -norecurse {
-#     E:/desk/matrix_calc/src/uatr/matrix_uart_input_v2.v
-#     E:/desk/matrix_calc/src/uatr/matrix_uart_output_v2.v
-#     E:/desk/matrix_calc/src/uatr/uart_rx.v
-#     E:/desk/matrix_calc/src/uatr/uart_tx.v
-# }
-# add_files -fileset constrs_1 -norecurse E:/desk/matrix_calc/constraints/board_constraints.xdc
-# update_compile_order -fileset sources_1
-# set_property top matrix_calc_top_v2 [current_fileset]
-# update_compile_order -fileset sources_1
-# puts "Project sources updated successfully."
-Project sources updated successfully.
+open_hw
+connect_hw_server
+INFO: [Labtools 27-2285] Connecting to hw_server url TCP:localhost:3121
+INFO: [Labtools 27-2222] Launching hw_server...
+INFO: [Labtools 27-2221] Launch Output:
+
+****** Xilinx hw_server v2017.4
+  **** Build date : Dec 15 2017-21:08:27
+    ** Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
+
+
+open_hw_target
+INFO: [Labtoolstcl 44-466] Opening hw_target localhost:3121/xilinx_tcf/Xilinx/1234-tulA
+set_property PROGRAM.FILE {E:/desk/matrix_calc/matrix_calc.runs/impl_1/matrix_calc_top_v2.bit} [get_hw_devices xc7a35t_0]
+current_hw_device [get_hw_devices xc7a35t_0]
+refresh_hw_device -update_hw_probes false [lindex [get_hw_devices xc7a35t_0] 0]
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
+set_property PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property FULL_PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property PROGRAM.FILE {E:/desk/matrix_calc/matrix_calc.runs/impl_1/matrix_calc_top_v2.bit} [get_hw_devices xc7a35t_0]
+program_hw_devices [get_hw_devices xc7a35t_0]
+INFO: [Labtools 27-3164] End of startup status: HIGH
+refresh_hw_device [lindex [get_hw_devices xc7a35t_0] 0]
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
+ERROR: [Labtoolstcl 44-513] HW Target shutdown. Closing target: localhost:3121/xilinx_tcf/Xilinx/1234-tulA
+INFO: [Labtoolstcl 44-466] Opening hw_target localhost:3121/xilinx_tcf/Xilinx/1234-tulA
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
+WARNING: [Labtoolstcl 44-129] No matching hw_ila_data was found.
+ERROR: [Labtoolstcl 44-513] HW Target shutdown. Closing target: localhost:3121/xilinx_tcf/Xilinx/1234-tulA
+INFO: [Labtoolstcl 44-466] Opening hw_target localhost:3121/xilinx_tcf/Xilinx/1234-tulA
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
+WARNING: [Labtoolstcl 44-129] No matching hw_ila_data was found.
+set_property PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property FULL_PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property PROGRAM.FILE {E:/desk/matrix_calc/matrix_calc.runs/impl_1/matrix_calc_top_v2.bit} [get_hw_devices xc7a35t_0]
+program_hw_devices [get_hw_devices xc7a35t_0]
+INFO: [Labtools 27-3164] End of startup status: HIGH
+refresh_hw_device [lindex [get_hw_devices xc7a35t_0] 0]
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
 reset_run synth_1
 launch_runs synth_1 -jobs 8
-[Tue Dec 23 00:07:36 2025] Launched synth_1...
+[Wed Dec 24 00:56:42 2025] Launched synth_1...
 Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/synth_1/runme.log
 launch_runs impl_1 -jobs 8
-[Tue Dec 23 00:09:17 2025] Launched impl_1...
+[Wed Dec 24 00:59:11 2025] Launched impl_1...
 Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+[Wed Dec 24 01:01:04 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+open_run impl_1
+INFO: [Netlist 29-17] Analyzing 1003 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2017.4
+INFO: [Device 21-403] Loading part xc7a35tcsg324-1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [E:/desk/matrix_calc/.Xil/Vivado-34436-LAPTOP-05DC09D2/dcp2/matrix_calc_top_v2.xdc]
+Finished Parsing XDC File [E:/desk/matrix_calc/.Xil/Vivado-34436-LAPTOP-05DC09D2/dcp2/matrix_calc_top_v2.xdc]
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.738 . Memory (MB): peak = 1885.363 ; gain = 15.895
+Restored from archive | CPU: 1.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.740 . Memory (MB): peak = 1885.363 ; gain = 15.895
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+open_run: Time (s): cpu = 00:00:08 ; elapsed = 00:00:11 . Memory (MB): peak = 1999.871 ; gain = 459.684
+CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+set_property PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property FULL_PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property PROGRAM.FILE {E:/desk/matrix_calc/matrix_calc.runs/impl_1/matrix_calc_top_v2.bit} [get_hw_devices xc7a35t_0]
+program_hw_devices [get_hw_devices xc7a35t_0]
+INFO: [Labtools 27-3164] End of startup status: HIGH
+refresh_hw_device [lindex [get_hw_devices xc7a35t_0] 0]
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+[Wed Dec 24 01:12:57 2025] Launched synth_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/synth_1/runme.log
+launch_runs impl_1 -jobs 8
+[Wed Dec 24 01:15:25 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+[Wed Dec 24 01:17:20 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+set_property PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property FULL_PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property PROGRAM.FILE {E:/desk/matrix_calc/matrix_calc.runs/impl_1/matrix_calc_top_v2.bit} [get_hw_devices xc7a35t_0]
+program_hw_devices [get_hw_devices xc7a35t_0]
+INFO: [Labtools 27-3164] End of startup status: HIGH
+refresh_hw_device [lindex [get_hw_devices xc7a35t_0] 0]
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+[Wed Dec 24 01:57:19 2025] Launched synth_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/synth_1/runme.log
+launch_runs impl_1 -jobs 8
+[Wed Dec 24 02:00:00 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+[Wed Dec 24 02:02:13 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+set_property PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property FULL_PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property PROGRAM.FILE {E:/desk/matrix_calc/matrix_calc.runs/impl_1/matrix_calc_top_v2.bit} [get_hw_devices xc7a35t_0]
+program_hw_devices [get_hw_devices xc7a35t_0]
+INFO: [Labtools 27-3164] End of startup status: HIGH
+refresh_hw_device [lindex [get_hw_devices xc7a35t_0] 0]
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+[Wed Dec 24 02:30:43 2025] Launched synth_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/synth_1/runme.log
+launch_runs impl_1 -jobs 8
+[Wed Dec 24 02:33:18 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+[Wed Dec 24 02:36:31 2025] Launched synth_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/synth_1/runme.log
+launch_runs impl_1 -jobs 8
+[Wed Dec 24 02:39:06 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+refresh_design
+INFO: [Netlist 29-17] Analyzing 1010 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2017.4
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [E:/desk/matrix_calc/.Xil/Vivado-34436-LAPTOP-05DC09D2/dcp11/matrix_calc_top_v2.xdc]
+Finished Parsing XDC File [E:/desk/matrix_calc/.Xil/Vivado-34436-LAPTOP-05DC09D2/dcp11/matrix_calc_top_v2.xdc]
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.740 . Memory (MB): peak = 2541.496 ; gain = 0.000
+Restored from archive | CPU: 1.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.741 . Memory (MB): peak = 2541.496 ; gain = 0.000
+CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+[Wed Dec 24 02:41:20 2025] Launched impl_1...
+Run output will be captured here: E:/desk/matrix_calc/matrix_calc.runs/impl_1/runme.log
+set_property PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property FULL_PROBES.FILE {} [get_hw_devices xc7a35t_0]
+set_property PROGRAM.FILE {E:/desk/matrix_calc/matrix_calc.runs/impl_1/matrix_calc_top_v2.bit} [get_hw_devices xc7a35t_0]
+program_hw_devices [get_hw_devices xc7a35t_0]
+INFO: [Labtools 27-3164] End of startup status: HIGH
+refresh_hw_device [lindex [get_hw_devices xc7a35t_0] 0]
+INFO: [Labtools 27-1434] Device xc7a35t (JTAG device index = 0) is programmed with a design that has no supported debug core(s) in it.
+WARNING: [Labtools 27-3361] The debug hub core was not detected.
+Resolution: 
+1. Make sure the clock connected to the debug hub (dbg_hub) core is a free running clock and is active.
+2. Make sure the BSCAN_SWITCH_USER_MASK device property in Vivado Hardware Manager reflects the user scan chain setting in the design and refresh the device.  To determine the user scan chain setting in the design, open the implemented design and use 'get_property C_USER_SCAN_CHAIN [get_debug_cores dbg_hub]'.
+For more details on setting the scan chain property, consult the Vivado Debug and Programming User Guide (UG908).
 exit
-INFO: [Common 17-206] Exiting Vivado at Tue Dec 23 00:22:56 2025...
+INFO: [Common 17-206] Exiting Vivado at Wed Dec 24 02:52:48 2025...

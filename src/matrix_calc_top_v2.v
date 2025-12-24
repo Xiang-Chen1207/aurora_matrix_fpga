@@ -45,6 +45,7 @@ module matrix_calc_top_v2(
     wire output_is_result;
     wire [3:0] display_digit;
     wire display_is_op;
+    wire countdown_active;
 
     // 矩阵输入模块信号（200位版本）
     wire [2:0] input_m, input_n;
@@ -62,8 +63,17 @@ module matrix_calc_top_v2(
     wire rd_valid, rd_error;
     wire [2:0] rd_m, rd_n;
     wire [199:0] rd_data;
-    wire [79:0] matrix_info;
+    wire [159:0] matrix_info;
+    wire [99:0] summary_counts;
     wire [15:0] match_ids; // NEW
+
+    // Dump interface wires
+    wire dump_en;
+    wire [3:0] dump_index;
+    wire dump_valid;
+    wire [7:0] dump_id;
+    wire [2:0] dump_m, dump_n;
+    wire [199:0] dump_data;
     
     // Generator Signals // NEW
     wire start_gen;
@@ -74,9 +84,11 @@ module matrix_calc_top_v2(
     wire [2:0] gen_m_out, gen_n_out;
     
     // Output Mode Signals // NEW
-    wire [1:0] output_mode;
+    wire [2:0] output_mode;
     wire query_start;
     wire [2:0] query_m, query_n;
+    wire [7:0] output_matrix_id;
+    wire [199:0] output_custom_data;
 
     // 计算模块信号
     wire calc_done_internal;
@@ -175,10 +187,14 @@ module matrix_calc_top_v2(
     wire [2:0] final_output_n;
     wire [199:0] final_output_data;
     wire is_conv_output;
+    // Data mux control signals
+    wire [1:0] fsm_src_sel;
+    wire [199:0] mux_matrix_data;
 
-    assign is_conv_output = (op_type == 4'b1001) && output_is_result;
+    assign is_conv_output = (op_type == 4'b1111) && output_is_result;
     assign final_output_m = output_is_result ? result_rows : rd_m;
     assign final_output_n = output_is_result ? result_cols : rd_n;
+    assign output_matrix_id = (fsm_src_sel == 2'b10) ? dump_id : read_id;
 
     matrix_uart_output_v2 u_matrix_output (
         .clk(clk),
@@ -195,6 +211,9 @@ module matrix_calc_top_v2(
         .mode(output_mode),
         .info_data(matrix_info),
         .match_ids(match_ids),
+        .total_count(total_matrix_count),
+        .summary_counts(summary_counts),
+        .matrix_id(output_matrix_id),
         
         .tx_start(tx_start),
         .tx_data(tx_data),
@@ -234,18 +253,31 @@ module matrix_calc_top_v2(
         .query_en(query_start), // FSM controls query refresh
         .total_count(total_matrix_count),
         .matrix_info(matrix_info),
+        .summary_counts(summary_counts),
         .query_dim_m(query_m),
         .query_dim_n(query_n),
-        .match_ids(match_ids)
+        .match_ids(match_ids),
+        // Dump interface
+        .dump_en(dump_en),
+        .dump_index(dump_index),
+        .dump_valid(dump_valid),
+        .dump_id(dump_id),
+        .dump_m(dump_m),
+        .dump_n(dump_n),
+        .dump_data(dump_data)
     );
 
     // ========================================
     // 矩阵A/B缓存逻辑
     // ========================================
-    // 状态定义（与controller_fsm_v2保持一致）
-    localparam S_CALC_WAIT_A = 5'd9;
-    localparam S_CALC_WAIT_B = 5'd11;
-    localparam S_MENU = 5'd1;
+    // 状态定义（需与 controller_fsm_v2 中的编码保持一致）
+    // controller_fsm_v2.v:
+    //   S_MENU        = 5'd1;
+    //   S_CALC_WAIT_A = 5'd12;
+    //   S_CALC_WAIT_B = 5'd17;
+    localparam S_CALC_WAIT_A = 5'd12;
+    localparam S_CALC_WAIT_B = 5'd17;
+    localparam S_MENU        = 5'd1;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -309,7 +341,7 @@ module matrix_calc_top_v2(
     );
 
     // 计算完成信号（普通运算或卷积）
-    assign conv_done = (op_type == 4'b1001) && calc_done_internal;
+    assign conv_done = (op_type == 4'b1111) && calc_done_internal;
     wire calc_done = calc_done_internal;
 
     // ========================================
@@ -356,29 +388,41 @@ module matrix_calc_top_v2(
         .conv_kernel(conv_kernel),
         .output_m(output_m),
         .output_n(output_n),
-        // .output_data removed
         .output_is_result(output_is_result),
         .display_digit(display_digit),
         .display_is_op(display_is_op),
+        .countdown_active(countdown_active),
         
         // Generator & New Features
+        .start_gen(start_gen),
+        .gen_count(gen_count),
+        .gen_target_m(gen_target_m),
+        .gen_target_n(gen_target_n),
         .gen_done(gen_done),
-        .output_mode(uart_output_mode),
+        .output_mode(output_mode),
         .query_start(query_start),
         .query_m(query_m),
         .query_n(query_n),
-        .output_src_sel(fsm_src_sel) // Control Signal
+        .output_sel(fsm_src_sel), // Control signal for UART data mux
+        .output_custom_data(output_custom_data),
+        .dump_en(dump_en),
+        .dump_index(dump_index),
+        .dump_valid(dump_valid),
+        .dump_id(dump_id),
+        .dump_m(dump_m),
+        .dump_n(dump_n),
+        .dump_data(dump_data)
         // .match_ids removed (FSM doesn't use it)
     );
 
     // ========================================
     // Data Mux Logic (Control/Data Separation)
     // ========================================
-    wire fsm_src_sel;
-    wire [199:0] mux_matrix_data;
-    
-    // Select between Calc Result and Storage Read Data based on FSM control
-    assign mux_matrix_data = (fsm_src_sel) ? calc_result[199:0] : rd_data[199:0];
+    // Select between storage read, calc result, or dump slot data
+    assign mux_matrix_data = (fsm_src_sel == 2'b01) ? calc_result[199:0] :
+                             (fsm_src_sel == 2'b10) ? dump_data :
+                             (fsm_src_sel == 2'b11) ? output_custom_data :
+                                                        rd_data[199:0];
 
     // ========================================
     // 数码管显示
@@ -390,18 +434,33 @@ module matrix_calc_top_v2(
         .op_type(op_type),
         .display_digit(display_digit),
         .display_is_op(display_is_op),
+        .countdown_active(countdown_active),
         .conv_cycles(conv_cycles),
         .seg(seg),
         .an(an)
     );
 
     // ========================================
-    // LED状态指示
-    // ========================================
-    wire [3:0] led_op_display;
-    assign led_op_display = (state == 5'd6) ? sw[7:4] : op_type;
+    // LED状态指示（按需求映射）
+    // led0: Idle, led1: Menu, led2: Input, led3: Generator, led4: Display,
+    // led5: Compute阶段，led6: Store/Select，led7: Error
+    wire led_idle     = (state == 5'd0);
+    wire led_menu     = (state == 5'd1);
+    wire led_input    = (state == 5'd2); // 输入阶段
+    wire led_gen      = (state >= 5'd27 && state <= 5'd30); // 生成流程
+    wire led_display  = (state == 5'd4) || (state == 5'd5);
+    wire led_compute  = (state >= 5'd6 && state <= 5'd24); // 运算相关阶段
+    wire led_store    = (state == 5'd3) || (state == 5'd8) || (state == 5'd9) ||
+                        (state == 5'd10) || (state == 5'd11) || (state == 5'd12) ||
+                        (state == 5'd17);
+
+    assign leds[0] = led_idle;
+    assign leds[1] = led_menu;
+    assign leds[2] = led_input;
+    assign leds[3] = led_gen;
+    assign leds[4] = led_display;
+    assign leds[5] = led_compute;
+    assign leds[6] = led_store;
     assign leds[7] = error_led;
-    assign leds[6:4] = state[2:0];
-    assign leds[3:0] = led_op_display;
 
 endmodule
