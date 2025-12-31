@@ -1,135 +1,172 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// 矩阵加法模块
-// 功能：实现两个同维度矩阵的加法运算 C = A + B
-// 输入矩阵按行优先展开：A[i][j] 存储在 mat_A[(i*5+j)*8 +: 8]
-// 最大支持5×5矩阵，每个元素8位
+// 模块名称: mat_add (矩阵加法模块)
+// 功能描述: 实现两个同维度矩阵的加法运算 C = A + B
+// 存储格式: 输入矩阵按行优先展开，A[i][j] 存储在 mat_A[(i*5+j)*8 +: 8]
+// 支持规格: 最大支持5×5矩阵，每个元素8位无符号整数
+// 作者:
+// 日期:
 //////////////////////////////////////////////////////////////////////////////////
+
 module mat_add (
-    input  wire        clk,
-    input  wire        rst_n,
-    input  wire        start,       // 开始计算信号
-    input  wire [2:0]  rows,        // 矩阵行数 m (1-5)
-    input  wire [2:0]  cols,        // 矩阵列数 n (1-5)
-    input  wire [199:0] mat_A,      // 输入矩阵A (5×5×8bit = 200bit)
-    input  wire [199:0] mat_B,      // 输入矩阵B
+    //==================== 输入端口 ====================
+    input  wire        clk,         // 系统时钟信号，上升沿触发
+    input  wire        rst_n,       // 异步复位信号，低电平有效
+    input  wire        start,       // 开始计算信号，高电平触发计算
+    input  wire [2:0]  rows,        // 矩阵行数 m，有效范围1-5
+    input  wire [2:0]  cols,        // 矩阵列数 n，有效范围1-5
+    input  wire [199:0] mat_A,      // 输入矩阵A，展开为200位 (5×5×8bit)
+    input  wire [199:0] mat_B,      // 输入矩阵B，展开为200位 (5×5×8bit)
+
+    //==================== 输出端口 ====================
     output reg  [199:0] mat_C,      // 结果矩阵C = A + B
-    output reg  [2:0]  result_rows, // 结果行数 = rows
-    output reg  [2:0]  result_cols, // 结果列数 = cols
-    output reg         done,        // 计算完成信号
-    output reg         error        // 错误标志（维度无效）
+    output reg  [2:0]  result_rows, // 结果矩阵的行数，等于输入rows
+    output reg  [2:0]  result_cols, // 结果矩阵的列数，等于输入cols
+    output reg         done,        // 计算完成标志，高电平表示计算完成
+    output reg         error        // 错误标志，高电平表示维度无效
 );
 
-    // 状态定义
-    localparam IDLE  = 2'd0;
-    localparam CHECK = 2'd1;
-    localparam CALC  = 2'd2;
-    localparam DONE  = 2'd3;
+    //==================== 状态机状态定义 ====================
+    // 使用独热码或二进制编码定义状态
+    localparam IDLE  = 2'd0;        // 空闲状态：等待start信号
+    localparam CHECK = 2'd1;        // 检查状态：验证输入维度的有效性
+    localparam CALC  = 2'd2;        // 计算状态：执行矩阵加法运算
+    localparam DONE  = 2'd3;        // 完成状态：输出结果，等待start撤销
 
-    reg [1:0] state;
-    reg [2:0] i, j;  // 循环计数器
-    reg [4:0] idx;   // 线性索引 (0-24)
+    //==================== 内部寄存器定义 ====================
+    reg [1:0] state;                // 当前状态寄存器，2位可表示4个状态
+    reg [2:0] i, j;                 // 二维循环计数器，i为行索引，j为列索引
+    reg [4:0] idx;                  // 线性索引，范围0-24，用于访问展开后的矩阵元素
 
-    // 临时变量用于计算
-    wire [7:0] a_elem, b_elem;
-    wire [7:0] sum;
+    //==================== 组合逻辑：元素提取和加法 ====================
+    // 这些wire信号用于从输入矩阵中提取当前索引位置的元素
+    wire [7:0] a_elem, b_elem;      // 当前位置的A和B矩阵元素
+    wire [7:0] sum;                 // 加法结果
 
-    // 根据idx获取元素
-    assign a_elem = mat_A[idx*8 +: 8];
-    assign b_elem = mat_B[idx*8 +: 8];
-    assign sum = a_elem + b_elem;
+    // 使用Verilog的位选择语法 [idx*8 +: 8] 表示从idx*8位开始，取8位
+    // 这是一种可综合的动态位选择方式
+    assign a_elem = mat_A[idx*8 +: 8];  // 提取A矩阵的第idx个元素
+    assign b_elem = mat_B[idx*8 +: 8];  // 提取B矩阵的第idx个元素
+    assign sum = a_elem + b_elem;        // 计算两元素之和（8位加法，可能溢出）
 
+    //==================== 主状态机：时序逻辑 ====================
+    // 异步复位，同步状态转移
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            state <= IDLE;
-            done <= 1'b0;
-            error <= 1'b0;
-            i <= 3'd0;
-            j <= 3'd0;
-            idx <= 5'd0;
-            mat_C <= 200'd0;
-            result_rows <= 3'd0;
-            result_cols <= 3'd0;
+            //---------- 异步复位：初始化所有寄存器 ----------
+            state <= IDLE;              // 状态机回到空闲状态
+            done <= 1'b0;               // 清除完成标志
+            error <= 1'b0;              // 清除错误标志
+            i <= 3'd0;                  // 行索引清零
+            j <= 3'd0;                  // 列索引清零
+            idx <= 5'd0;                // 线性索引清零
+            mat_C <= 200'd0;            // 结果矩阵清零
+            result_rows <= 3'd0;        // 结果行数清零
+            result_cols <= 3'd0;        // 结果列数清零
         end else begin
+            //---------- 状态机主体 ----------
             case (state)
+                //========== IDLE状态：等待开始信号 ==========
                 IDLE: begin
-                    done <= 1'b0;
-                    error <= 1'b0;
-                    if (start) begin
-                        state <= CHECK;
+                    done <= 1'b0;           // 清除上一次的完成标志
+                    error <= 1'b0;          // 清除上一次的错误标志
+                    if (start) begin        // 检测到start信号上升沿
+                        state <= CHECK;     // 转移到检查状态
                     end
                 end
 
+                //========== CHECK状态：验证输入维度 ==========
                 CHECK: begin
-                    // 检查维度有效性
+                    // 检查行数和列数是否在有效范围内（1到5）
                     if (rows >= 3'd1 && rows <= 3'd5 && cols >= 3'd1 && cols <= 3'd5) begin
-                        state <= CALC;
-                        i <= 3'd0;
-                        j <= 3'd0;
-                        idx <= 5'd0;
-                        mat_C <= 200'd0;
-                        result_rows <= rows;
-                        result_cols <= cols;
+                        // 维度有效，准备开始计算
+                        state <= CALC;          // 转移到计算状态
+                        i <= 3'd0;              // 初始化行索引
+                        j <= 3'd0;              // 初始化列索引
+                        idx <= 5'd0;            // 初始化线性索引
+                        mat_C <= 200'd0;        // 清空结果矩阵
+                        result_rows <= rows;    // 记录结果矩阵行数
+                        result_cols <= cols;    // 记录结果矩阵列数
                     end else begin
-                        error <= 1'b1;
-                        state <= DONE;
+                        // 维度无效，报错
+                        error <= 1'b1;          // 设置错误标志
+                        state <= DONE;          // 直接跳到完成状态
                     end
                 end
 
+                //========== CALC状态：执行矩阵加法 ==========
                 CALC: begin
+                    // 外层循环：遍历行
                     if (i < rows) begin
+                        // 内层循环：遍历列
                         if (j < cols) begin
-                            // C[i][j] = A[i][j] + B[i][j]
+                            // 核心计算：C[i][j] = A[i][j] + B[i][j]
+                            // 由于Verilog不支持变量索引直接赋值给reg的某些位，
+                            // 这里使用case语句展开所有25种情况
                             case (idx)
-                                5'd0:  mat_C[7:0]     <= mat_A[7:0]     + mat_B[7:0];
-                                5'd1:  mat_C[15:8]    <= mat_A[15:8]    + mat_B[15:8];
-                                5'd2:  mat_C[23:16]   <= mat_A[23:16]   + mat_B[23:16];
-                                5'd3:  mat_C[31:24]   <= mat_A[31:24]   + mat_B[31:24];
-                                5'd4:  mat_C[39:32]   <= mat_A[39:32]   + mat_B[39:32];
-                                5'd5:  mat_C[47:40]   <= mat_A[47:40]   + mat_B[47:40];
-                                5'd6:  mat_C[55:48]   <= mat_A[55:48]   + mat_B[55:48];
-                                5'd7:  mat_C[63:56]   <= mat_A[63:56]   + mat_B[63:56];
-                                5'd8:  mat_C[71:64]   <= mat_A[71:64]   + mat_B[71:64];
-                                5'd9:  mat_C[79:72]   <= mat_A[79:72]   + mat_B[79:72];
-                                5'd10: mat_C[87:80]   <= mat_A[87:80]   + mat_B[87:80];
-                                5'd11: mat_C[95:88]   <= mat_A[95:88]   + mat_B[95:88];
-                                5'd12: mat_C[103:96]  <= mat_A[103:96]  + mat_B[103:96];
-                                5'd13: mat_C[111:104] <= mat_A[111:104] + mat_B[111:104];
-                                5'd14: mat_C[119:112] <= mat_A[119:112] + mat_B[119:112];
-                                5'd15: mat_C[127:120] <= mat_A[127:120] + mat_B[127:120];
-                                5'd16: mat_C[135:128] <= mat_A[135:128] + mat_B[135:128];
-                                5'd17: mat_C[143:136] <= mat_A[143:136] + mat_B[143:136];
-                                5'd18: mat_C[151:144] <= mat_A[151:144] + mat_B[151:144];
-                                5'd19: mat_C[159:152] <= mat_A[159:152] + mat_B[159:152];
-                                5'd20: mat_C[167:160] <= mat_A[167:160] + mat_B[167:160];
-                                5'd21: mat_C[175:168] <= mat_A[175:168] + mat_B[175:168];
-                                5'd22: mat_C[183:176] <= mat_A[183:176] + mat_B[183:176];
-                                5'd23: mat_C[191:184] <= mat_A[191:184] + mat_B[191:184];
-                                5'd24: mat_C[199:192] <= mat_A[199:192] + mat_B[199:192];
-                                default: ;
+                                // 第0行元素 (索引0-4)
+                                5'd0:  mat_C[7:0]     <= mat_A[7:0]     + mat_B[7:0];      // C[0][0]
+                                5'd1:  mat_C[15:8]    <= mat_A[15:8]    + mat_B[15:8];     // C[0][1]
+                                5'd2:  mat_C[23:16]   <= mat_A[23:16]   + mat_B[23:16];    // C[0][2]
+                                5'd3:  mat_C[31:24]   <= mat_A[31:24]   + mat_B[31:24];    // C[0][3]
+                                5'd4:  mat_C[39:32]   <= mat_A[39:32]   + mat_B[39:32];    // C[0][4]
+                                // 第1行元素 (索引5-9)
+                                5'd5:  mat_C[47:40]   <= mat_A[47:40]   + mat_B[47:40];    // C[1][0]
+                                5'd6:  mat_C[55:48]   <= mat_A[55:48]   + mat_B[55:48];    // C[1][1]
+                                5'd7:  mat_C[63:56]   <= mat_A[63:56]   + mat_B[63:56];    // C[1][2]
+                                5'd8:  mat_C[71:64]   <= mat_A[71:64]   + mat_B[71:64];    // C[1][3]
+                                5'd9:  mat_C[79:72]   <= mat_A[79:72]   + mat_B[79:72];    // C[1][4]
+                                // 第2行元素 (索引10-14)
+                                5'd10: mat_C[87:80]   <= mat_A[87:80]   + mat_B[87:80];    // C[2][0]
+                                5'd11: mat_C[95:88]   <= mat_A[95:88]   + mat_B[95:88];    // C[2][1]
+                                5'd12: mat_C[103:96]  <= mat_A[103:96]  + mat_B[103:96];   // C[2][2]
+                                5'd13: mat_C[111:104] <= mat_A[111:104] + mat_B[111:104];  // C[2][3]
+                                5'd14: mat_C[119:112] <= mat_A[119:112] + mat_B[119:112];  // C[2][4]
+                                // 第3行元素 (索引15-19)
+                                5'd15: mat_C[127:120] <= mat_A[127:120] + mat_B[127:120];  // C[3][0]
+                                5'd16: mat_C[135:128] <= mat_A[135:128] + mat_B[135:128];  // C[3][1]
+                                5'd17: mat_C[143:136] <= mat_A[143:136] + mat_B[143:136];  // C[3][2]
+                                5'd18: mat_C[151:144] <= mat_A[151:144] + mat_B[151:144];  // C[3][3]
+                                5'd19: mat_C[159:152] <= mat_A[159:152] + mat_B[159:152];  // C[3][4]
+                                // 第4行元素 (索引20-24)
+                                5'd20: mat_C[167:160] <= mat_A[167:160] + mat_B[167:160];  // C[4][0]
+                                5'd21: mat_C[175:168] <= mat_A[175:168] + mat_B[175:168];  // C[4][1]
+                                5'd22: mat_C[183:176] <= mat_A[183:176] + mat_B[183:176];  // C[4][2]
+                                5'd23: mat_C[191:184] <= mat_A[191:184] + mat_B[191:184];  // C[4][3]
+                                5'd24: mat_C[199:192] <= mat_A[199:192] + mat_B[199:192];  // C[4][4]
+                                default: ;  // 默认情况，不做任何操作
                             endcase
 
-                            j <= j + 1'b1;
-                            idx <= idx + 1'b1;
+                            // 更新列索引和线性索引，准备处理下一个元素
+                            j <= j + 1'b1;          // 列索引加1
+                            idx <= idx + 1'b1;      // 线性索引加1
                         end else begin
-                            j <= 3'd0;
-                            i <= i + 1'b1;
-                            // 跳过本行剩余的元素（如果列数<5）
+                            // 当前行处理完毕，换到下一行
+                            j <= 3'd0;              // 列索引归零
+                            i <= i + 1'b1;          // 行索引加1
+                            // 关键：跳过本行剩余的无效元素
+                            // 如果矩阵列数<5，需要跳过未使用的位置
+                            // 下一行起始索引 = (i+1) * 5
                             idx <= (i + 1'b1) * 5;
                         end
                     end else begin
+                        // 所有行处理完毕，转到完成状态
                         state <= DONE;
                     end
                 end
 
+                //========== DONE状态：输出完成信号 ==========
                 DONE: begin
-                    done <= 1'b1;
+                    done <= 1'b1;           // 设置完成标志
+                    // 握手协议：等待start信号撤销后才返回IDLE
+                    // 这样可以防止同一个start脉冲触发多次计算
                     if (!start) begin
-                        state <= IDLE;
+                        state <= IDLE;      // start撤销后返回空闲状态
                     end
                 end
 
-                default: state <= IDLE;
+                //========== 默认状态：异常恢复 ==========
+                default: state <= IDLE;     // 发生异常时回到空闲状态
             endcase
         end
     end
